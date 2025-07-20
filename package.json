@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@libsql/client": "^0.15.10",
+    "dotenv": "^17.2.0",
+    "drizzle-orm": "^0.44.3",
     "next": "15.4.2",
     "react": "19.1.0",
     "react-dom": "19.1.0"
@@ -19,7 +22,9 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.4",
     "tailwindcss": "^4",
+    "tsx": "^4.20.3",
     "typescript": "^5"
   }
 }
