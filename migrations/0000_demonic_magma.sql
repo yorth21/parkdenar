@@ -34,7 +34,7 @@ CREATE TABLE `band` (
 	`start_hour` integer NOT NULL,
 	`end_hour` integer NOT NULL,
 	`is_active` integer DEFAULT 1 NOT NULL,
-	CONSTRAINT "band_hour_range_ck" CHECK("band"."start_hour" >= 0 AND "band"."end_hour" <= 24 AND "band"."start_hour" < "band"."end_hour")
+	CONSTRAINT "band_hour_range_ck" CHECK("band"."start_hour" >= 0 AND "band"."end_hour" <= 23 AND "band"."start_hour" < "band"."end_hour")
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `band_name_uq` ON `band` (`name`);--> statement-breakpoint

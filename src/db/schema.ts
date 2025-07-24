@@ -117,7 +117,7 @@ export const bands = sqliteTable(
 		uniqueIndex("band_name_uq").on(band.name),
 		check(
 			"band_hour_range_ck",
-			sql`${band.startHour} >= 0 AND ${band.endHour} <= 24 AND ${band.startHour} < ${band.endHour}`,
+			sql`${band.startHour} >= 0 AND ${band.endHour} <= 23 AND ${band.startHour} < ${band.endHour}`,
 		),
 		uniqueIndex("band_active_start_idx").on(band.isActive, band.startHour),
 	],

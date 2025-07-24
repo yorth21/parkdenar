@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "fa48f448-92e0-469a-b030-49c13aa5bd50",
+  "id": "810af255-2679-46a9-984f-2b6bb8f7d55b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "account": {
@@ -272,7 +272,7 @@
       "checkConstraints": {
         "band_hour_range_ck": {
           "name": "band_hour_range_ck",
-          "value": "\"band\".\"start_hour\" >= 0 AND \"band\".\"end_hour\" <= 24 AND \"band\".\"start_hour\" < \"band\".\"end_hour\""
+          "value": "\"band\".\"start_hour\" >= 0 AND \"band\".\"end_hour\" <= 23 AND \"band\".\"start_hour\" < \"band\".\"end_hour\""
         }
       }
     },
