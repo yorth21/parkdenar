@@ -1,11 +1,16 @@
+import { sql } from "drizzle-orm";
 import {
+	integer as bool,
+	check,
 	integer,
 	primaryKey,
 	sqliteTable,
 	text,
+	uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
+// Auth
 export const users = sqliteTable("user", {
 	id: text("id")
 		.primaryKey()
@@ -36,11 +41,11 @@ export const accounts = sqliteTable(
 		id_token: text("id_token"),
 		session_state: text("session_state"),
 	},
-	(account) => ({
-		compoundKey: primaryKey({
+	(account) => [
+		primaryKey({
 			columns: [account.provider, account.providerAccountId],
 		}),
-	}),
+	],
 );
 
 export const sessions = sqliteTable("session", {
@@ -58,11 +63,11 @@ export const verificationTokens = sqliteTable(
 		token: text("token").notNull(),
 		expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
 	},
-	(verificationToken) => ({
-		compositePk: primaryKey({
+	(verificationToken) => [
+		primaryKey({
 			columns: [verificationToken.identifier, verificationToken.token],
 		}),
-	}),
+	],
 );
 
 export const authenticators = sqliteTable(
@@ -81,9 +86,172 @@ export const authenticators = sqliteTable(
 		}).notNull(),
 		transports: text("transports"),
 	},
-	(authenticator) => ({
-		compositePK: primaryKey({
+	(authenticator) => [
+		primaryKey({
 			columns: [authenticator.userId, authenticator.credentialID],
 		}),
-	}),
+	],
+);
+
+// Parking
+export const vehicleTypes = sqliteTable(
+	"vehicle_type",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		name: text("name").notNull(),
+		isActive: bool("is_active").notNull().default(1),
+	},
+	(vehicleType) => [uniqueIndex("vehicle_type_name_uq").on(vehicleType.name)],
+);
+
+export const bands = sqliteTable(
+	"band",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		name: text("name").notNull(),
+		startHour: integer("start_hour").notNull(),
+		endHour: integer("end_hour").notNull(),
+		isActive: bool("is_active").notNull().default(1),
+	},
+	(band) => [
+		uniqueIndex("band_name_uq").on(band.name),
+		check(
+			"band_hour_range_ck",
+			sql`${band.startHour} >= 0 AND ${band.endHour} <= 24 AND ${band.startHour} < ${band.endHour}`,
+		),
+		uniqueIndex("band_active_start_idx").on(band.isActive, band.startHour),
+	],
+);
+
+export const initialRates = sqliteTable(
+	"initial_rate",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		vehicleTypeId: integer("vehicle_type_id")
+			.notNull()
+			.references(() => vehicleTypes.id, { onDelete: "restrict" }),
+		amount: integer("amount").notNull(),
+		validFrom: integer("valid_from", { mode: "timestamp_ms" }).notNull(),
+		validTo: integer("valid_to", { mode: "timestamp_ms" }),
+	},
+	(initialRate) => [
+		uniqueIndex("initial_rate_vehicle_from_uq").on(
+			initialRate.vehicleTypeId,
+			initialRate.validFrom,
+		),
+		check("initial_rate_amount_nonneg_ck", sql`${initialRate.amount} >= 0`),
+		check(
+			"init_rate_valid_range_ck",
+			sql`(${initialRate.validTo} IS NULL) OR (${initialRate.validTo} > ${initialRate.validFrom})`,
+		),
+	],
+);
+
+export const extraRates = sqliteTable(
+	"extra_rate",
+	{
+		bandId: integer("band_id")
+			.notNull()
+			.references(() => bands.id, { onDelete: "restrict" }),
+		vehicleTypeId: integer("vehicle_type_id")
+			.notNull()
+			.references(() => vehicleTypes.id, { onDelete: "restrict" }),
+		amount: integer("amount").notNull(),
+		validFrom: integer("valid_from", { mode: "timestamp_ms" }).notNull(),
+		validTo: integer("valid_to", { mode: "timestamp_ms" }),
+	},
+	(extraRate) => [
+		primaryKey({
+			columns: [extraRate.bandId, extraRate.vehicleTypeId, extraRate.validFrom],
+		}),
+		check("extra_rate_amount_nonneg_ck", sql`${extraRate.amount} >= 0`),
+		check(
+			"extra_rate_valid_range_ck",
+			sql`(${extraRate.validTo} IS NULL) OR (${extraRate.validTo} > ${extraRate.validFrom})`,
+		),
+	],
+);
+
+export const parkingEntries = sqliteTable(
+	"parking_entry",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		plate: text("plate").notNull(),
+		vehicleTypeId: integer("vehicle_type_id")
+			.notNull()
+			.references(() => vehicleTypes.id, { onDelete: "restrict" }),
+		entryTime: integer("entry_time", { mode: "timestamp_ms" }).notNull(),
+		initialRateId: integer("initial_rate_id")
+			.notNull()
+			.references(() => initialRates.id, { onDelete: "restrict" }),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "restrict" }),
+		status: text("status")
+			.$type<"Open" | "Closed" | "Paid">()
+			.notNull()
+			.default("Open"),
+	},
+	(parkingEntry) => [
+		uniqueIndex("parking_entry_plate_idx").on(parkingEntry.plate),
+		// Índice único condicional para placas abiertas
+		uniqueIndex("parking_entry_plate_open_uq")
+			.on(parkingEntry.plate)
+			.where(sql`${parkingEntry.status} = 'Open'`),
+		check(
+			"parking_entry_status_ck",
+			sql`${parkingEntry.status} IN ('Open', 'Closed', 'Paid')`,
+		),
+	],
+);
+
+export const parkingExit = sqliteTable(
+	"parking_exit",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		entryId: integer("entry_id")
+			.notNull()
+			.references(() => parkingEntries.id, { onDelete: "restrict" }),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "restrict" }),
+		exitTime: integer("exit_time", { mode: "timestamp_ms" }).notNull(),
+		calculatedAmount: integer("calculated_amount").notNull(),
+		status: text("status").$type<"Paid" | "Voided">().notNull().default("Paid"),
+	},
+	(parkingExit) => [
+		uniqueIndex("parking_exit_entry_uq").on(parkingExit.entryId),
+		uniqueIndex("parking_exit_time_idx").on(parkingExit.exitTime),
+		check(
+			"parking_exit_status_ck",
+			sql`${parkingExit.status} IN ('Paid', 'Voided')`,
+		),
+	],
+);
+
+export const payments = sqliteTable(
+	"payment",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		exitId: integer("exit_id").references(() => parkingExit.id, {
+			onDelete: "restrict",
+		}),
+		amount: integer("amount").notNull(),
+		method: text("method").$type<"Cash" | "Card" | "Transfer">().notNull(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "restrict" }),
+		notes: text("notes"),
+		createdAt: integer("created_at", { mode: "timestamp_ms" })
+			.notNull()
+			.$defaultFn(() => new Date()),
+	},
+	(payment) => [
+		uniqueIndex("payment_exit_uq").on(payment.exitId),
+		check("payment_amount_nonneg_ck", sql`${payment.amount} >= 0`),
+		check(
+			"payment_method_ck",
+			sql`${payment.method} IN ('Cash', 'Card', 'Transfer')`,
+		),
+	],
 );
