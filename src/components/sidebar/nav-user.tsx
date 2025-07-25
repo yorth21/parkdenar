@@ -1,12 +1,7 @@
 "use client";
 
-import {
-	Bell,
-	CreditCard,
-	LogOut,
-	MoreVertical,
-	UserCircle,
-} from "lucide-react";
+import { LogOut, MoreVertical, UserCircle } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -35,6 +30,13 @@ export function NavUser({
 	};
 }) {
 	const { isMobile } = useSidebar();
+
+	const handleSignOut = async () => {
+		await signOut({
+			callbackUrl: "/",
+			redirect: true,
+		});
+	};
 
 	return (
 		<SidebarMenu>
@@ -82,21 +84,16 @@ export function NavUser({
 						<DropdownMenuGroup>
 							<DropdownMenuItem>
 								<UserCircle />
-								Account
-							</DropdownMenuItem>
-							<DropdownMenuItem>
-								<CreditCard />
-								Billing
-							</DropdownMenuItem>
-							<DropdownMenuItem>
-								<Bell />
-								Notifications
+								Perfil
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>
-							<LogOut />
-							Log out
+						<DropdownMenuItem
+							onClick={handleSignOut}
+							className="text-red-600 hover:text-red-700 hover:bg-red-50 focus:text-red-700 focus:bg-red-50"
+						>
+							<LogOut className="text-red-600" />
+							Cerrar sesión
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
