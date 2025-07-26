@@ -1,3 +1,5 @@
+import type { ParkingEntryStatus } from "@/enums/parking";
+
 export type CreateParkingEntryInput = {
 	plate: string;
 	vehicleTypeId: number;
@@ -7,5 +9,5 @@ export type CreateParkingEntryInput = {
 };
 
 export type UpdateParkingEntryInput = {
-	status?: "Open" | "Closed" | "Paid";
+	status?: ParkingEntryStatus;
 };

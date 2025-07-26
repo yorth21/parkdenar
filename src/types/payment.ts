@@ -1,13 +1,15 @@
+import type { PaymentMethod } from "@/enums/payment";
+
 export type CreatePaymentInput = {
 	exitId: number;
 	amount: number;
-	method: "Cash" | "Card" | "Transfer";
+	method: PaymentMethod;
 	userId: string;
 	notes?: string;
 };
 
 export type UpdatePaymentInput = {
 	amount?: number;
-	method?: "Cash" | "Card" | "Transfer";
+	method?: PaymentMethod;
 	notes?: string;
 };

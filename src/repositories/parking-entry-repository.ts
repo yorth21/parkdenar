@@ -1,6 +1,7 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { parkingEntries, users, vehicleTypes } from "@/db/schema";
+import { ParkingEntryStatus } from "@/enums/parking";
 import type {
 	CreateParkingEntryInput,
 	UpdateParkingEntryInput,
@@ -120,12 +121,12 @@ export async function updateParkingEntry(
 
 // Cerrar entrada (marcar como cerrada)
 export async function closeParkingEntry(id: number) {
-	return updateParkingEntry(id, { status: "Closed" });
+	return updateParkingEntry(id, { status: ParkingEntryStatus.Closed });
 }
 
 // Marcar como pagada
 export async function markParkingEntryAsPaid(id: number) {
-	return updateParkingEntry(id, { status: "Paid" });
+	return updateParkingEntry(id, { status: ParkingEntryStatus.Paid });
 }
 
 // Verificar si una placa tiene entrada activa
