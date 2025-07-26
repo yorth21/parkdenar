@@ -1,117 +1,82 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
+import type { CreateUserInput, UpdateUserInput } from "@/types/user";
 
-export type CreateUserInput = {
-	name?: string;
-	email: string;
-	password: string;
-	role?: string;
-	image?: string;
-};
+export async function createUser(input: CreateUserInput) {
+	const [user] = await db.insert(users).values(input).returning();
+	return user;
+}
 
-export type UpdateUserInput = {
-	name?: string;
-	email?: string;
-	password?: string;
-	role?: string;
-	image?: string;
-	isActive?: boolean;
-};
+export async function findUserById(id: string) {
+	const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+	return user || null;
+}
 
-export class UserRepository {
-	// Crear usuario
-	static async create(input: CreateUserInput) {
-		const [user] = await db.insert(users).values(input).returning();
-		return user;
-	}
+export async function findUserByEmail(email: string) {
+	const [user] = await db
+		.select()
+		.from(users)
+		.where(eq(users.email, email))
+		.limit(1);
+	return user || null;
+}
 
-	// Obtener usuario por ID
-	static async findById(id: string) {
-		return db
-			.select()
-			.from(users)
-			.where(eq(users.id, id))
-			.limit(1)
-			.then((rows) => rows[0] || null);
-	}
+export async function findActiveUserByEmail(email: string) {
+	const [user] = await db
+		.select()
+		.from(users)
+		.where(and(eq(users.email, email), eq(users.isActive, true)))
+		.limit(1);
+	return user || null;
+}
 
-	// Obtener usuario por email
-	static async findByEmail(email: string) {
-		return db
-			.select()
-			.from(users)
-			.where(eq(users.email, email))
-			.limit(1)
-			.then((rows) => rows[0] || null);
-	}
+export async function findAllUsers() {
+	return db.select().from(users);
+}
 
-	// Obtener usuario por email y activo
-	static async findActiveByEmail(email: string) {
-		return db
-			.select()
-			.from(users)
-			.where(and(eq(users.email, email), eq(users.isActive, true)))
-			.limit(1)
-			.then((rows) => rows[0] || null);
-	}
+export async function findAllActiveUsers() {
+	return db.select().from(users).where(eq(users.isActive, true));
+}
 
-	// Obtener todos los usuarios
-	static async findAll() {
-		return db.select().from(users);
-	}
+export async function findUsersByRole(role: string) {
+	return db.select().from(users).where(eq(users.role, role));
+}
 
-	// Obtener usuarios activos
-	static async findAllActive() {
-		return db.select().from(users).where(eq(users.isActive, true));
-	}
+export async function updateUser(id: string, input: UpdateUserInput) {
+	const [updatedUser] = await db
+		.update(users)
+		.set(input)
+		.where(eq(users.id, id))
+		.returning();
+	return updatedUser;
+}
 
-	// Obtener usuarios por rol
-	static async findByRole(role: string) {
-		return db.select().from(users).where(eq(users.role, role));
-	}
+export async function deactivateUser(id: string) {
+	return updateUser(id, { isActive: false });
+}
 
-	// Actualizar usuario
-	static async update(id: string, input: UpdateUserInput) {
-		const [updatedUser] = await db
-			.update(users)
-			.set(input)
-			.where(eq(users.id, id))
-			.returning();
-		return updatedUser;
-	}
+export async function activateUser(id: string) {
+	return updateUser(id, { isActive: true });
+}
 
-	// Desactivar usuario (soft delete)
-	static async deactivate(id: string) {
-		return UserRepository.update(id, { isActive: false });
-	}
+export async function deleteUser(id: string) {
+	const [deletedUser] = await db
+		.delete(users)
+		.where(eq(users.id, id))
+		.returning();
+	return deletedUser;
+}
 
-	// Activar usuario
-	static async activate(id: string) {
-		return UserRepository.update(id, { isActive: true });
-	}
+export async function existsUserByEmail(email: string) {
+	const user = await findUserByEmail(email);
+	return !!user;
+}
 
-	// Eliminar usuario (hard delete)
-	static async delete(id: string) {
-		const [deletedUser] = await db
-			.delete(users)
-			.where(eq(users.id, id))
-			.returning();
-		return deletedUser;
-	}
-
-	// Verificar si existe un usuario por email
-	static async existsByEmail(email: string) {
-		const user = await UserRepository.findByEmail(email);
-		return !!user;
-	}
-
-	// Contar usuarios por rol
-	static async countByRole(role: string) {
-		const result = await db
-			.select({ count: sql<number>`count(*)` })
-			.from(users)
-			.where(eq(users.role, role));
-		return result[0]?.count || 0;
-	}
+export async function countUsersByRole(role: string) {
+	const result = await db
+		.select({ count: sql<number>`count(*)` })
+		.from(users)
+		.where(eq(users.role, role));
+	return result[0]?.count || 0;
 }
