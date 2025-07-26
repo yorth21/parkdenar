@@ -1,113 +1,93 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { vehicleTypes } from "@/db/schema";
+import type {
+	CreateVehicleTypeInput,
+	UpdateVehicleTypeInput,
+} from "@/types/vehicle-type";
 
-export type CreateVehicleTypeInput = {
-	name: string;
-	isActive?: number;
-};
+export async function createVehicleType(input: CreateVehicleTypeInput) {
+	const [vehicleType] = await db.insert(vehicleTypes).values(input).returning();
+	return vehicleType;
+}
 
-export type UpdateVehicleTypeInput = {
-	name?: string;
-	isActive?: number;
-};
+export async function findVehicleTypeById(id: number) {
+	const [row] = await db
+		.select()
+		.from(vehicleTypes)
+		.where(eq(vehicleTypes.id, id))
+		.limit(1);
+	return row || null;
+}
 
-export class VehicleTypeRepository {
-	// Crear tipo de vehículo
-	static async create(input: CreateVehicleTypeInput) {
-		const [vehicleType] = await db
-			.insert(vehicleTypes)
-			.values(input)
-			.returning();
-		return vehicleType;
-	}
+export async function findVehicleTypeByName(name: string) {
+	const [row] = await db
+		.select()
+		.from(vehicleTypes)
+		.where(eq(vehicleTypes.name, name))
+		.limit(1);
+	return row || null;
+}
 
-	// Obtener tipo de vehículo por ID
-	static async findById(id: number) {
-		return db
-			.select()
-			.from(vehicleTypes)
-			.where(eq(vehicleTypes.id, id))
-			.limit(1)
-			.then((rows) => rows[0] || null);
-	}
+export async function findAllVehicleTypes() {
+	return db.select().from(vehicleTypes);
+}
 
-	// Obtener tipo de vehículo por nombre
-	static async findByName(name: string) {
-		return db
-			.select()
-			.from(vehicleTypes)
-			.where(eq(vehicleTypes.name, name))
-			.limit(1)
-			.then((rows) => rows[0] || null);
-	}
+export async function findAllActiveVehicleTypes() {
+	return db.select().from(vehicleTypes).where(eq(vehicleTypes.isActive, 1));
+}
 
-	// Obtener todos los tipos de vehículo
-	static async findAll() {
-		return db.select().from(vehicleTypes);
-	}
+export async function updateVehicleType(
+	id: number,
+	input: UpdateVehicleTypeInput,
+) {
+	const [updatedVehicleType] = await db
+		.update(vehicleTypes)
+		.set(input)
+		.where(eq(vehicleTypes.id, id))
+		.returning();
+	return updatedVehicleType;
+}
 
-	// Obtener tipos de vehículo activos
-	static async findAllActive() {
-		return db.select().from(vehicleTypes).where(eq(vehicleTypes.isActive, 1));
-	}
+export async function deactivateVehicleType(id: number) {
+	return updateVehicleType(id, { isActive: 0 });
+}
 
-	// Actualizar tipo de vehículo
-	static async update(id: number, input: UpdateVehicleTypeInput) {
-		const [updatedVehicleType] = await db
-			.update(vehicleTypes)
-			.set(input)
-			.where(eq(vehicleTypes.id, id))
-			.returning();
-		return updatedVehicleType;
-	}
+export async function activateVehicleType(id: number) {
+	return updateVehicleType(id, { isActive: 1 });
+}
 
-	// Desactivar tipo de vehículo
-	static async deactivate(id: number) {
-		return VehicleTypeRepository.update(id, { isActive: 0 });
-	}
+export async function deleteVehicleType(id: number) {
+	const [deletedVehicleType] = await db
+		.delete(vehicleTypes)
+		.where(eq(vehicleTypes.id, id))
+		.returning();
+	return deletedVehicleType;
+}
 
-	// Activar tipo de vehículo
-	static async activate(id: number) {
-		return VehicleTypeRepository.update(id, { isActive: 1 });
-	}
+export async function existsVehicleTypeByName(name: string) {
+	const vehicleType = await findVehicleTypeByName(name);
+	return !!vehicleType;
+}
 
-	// Eliminar tipo de vehículo
-	static async delete(id: number) {
-		const [deletedVehicleType] = await db
-			.delete(vehicleTypes)
-			.where(eq(vehicleTypes.id, id))
-			.returning();
-		return deletedVehicleType;
-	}
+export async function countActiveVehicleTypes() {
+	const result = await db
+		.select({ count: sql<number>`count(*)` })
+		.from(vehicleTypes)
+		.where(eq(vehicleTypes.isActive, 1));
+	return result[0]?.count || 0;
+}
 
-	// Verificar si existe un tipo de vehículo por nombre
-	static async existsByName(name: string) {
-		const vehicleType = await VehicleTypeRepository.findByName(name);
-		return !!vehicleType;
-	}
+export async function isVehicleTypeActive(id: number) {
+	const vehicleType = await findVehicleTypeById(id);
+	return vehicleType?.isActive === 1;
+}
 
-	// Contar tipos de vehículo activos
-	static async countActive() {
-		const result = await db
-			.select({ count: sql<number>`count(*)` })
-			.from(vehicleTypes)
-			.where(eq(vehicleTypes.isActive, 1));
-		return result[0]?.count || 0;
-	}
+// Helpers
+export function boolToNumber(value: boolean): number {
+	return value ? 1 : 0;
+}
 
-	// Verificar si un tipo de vehículo está activo
-	static async isActive(id: number) {
-		const vehicleType = await VehicleTypeRepository.findById(id);
-		return vehicleType?.isActive === 1;
-	}
-
-	// Métodos helpers para convertir entre boolean y number
-	static boolToNumber(value: boolean): number {
-		return value ? 1 : 0;
-	}
-
-	static numberToBool(value: number): boolean {
-		return value === 1;
-	}
+export function numberToBool(value: number): boolean {
+	return value === 1;
 }
