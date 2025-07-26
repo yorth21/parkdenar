@@ -7,7 +7,10 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"includes": ["**/*.{js,ts,jsx,tsx,json,css,md}"]
+		"includes": [
+			"**/*.{js,ts,jsx,tsx,json,css,md}",
+			"!src/shared/components/ui/**"
+		]
 	},
 	"formatter": {
 		"enabled": true,
