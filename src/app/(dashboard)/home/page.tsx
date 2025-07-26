@@ -6,7 +6,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+} from "@/shared/components/ui/card";
 
 export default async function HomePage() {
 	const session = await auth();

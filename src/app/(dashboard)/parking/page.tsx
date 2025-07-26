@@ -1,10 +1,10 @@
 "use client";
 
-import { EmptyStateCard } from "@/components/parking/empty-state-card";
-import { RegisterEntryCard } from "@/components/parking/register-entry-card";
-import { RegisterExitCard } from "@/components/parking/register-exit-card";
-import { SearchVehicleCard } from "@/components/parking/search-vehicle-card";
-import { useParkingStore } from "@/stores/parking-store";
+import { EmptyStateCard } from "@/modules/parking/components/empty-state-card";
+import { RegisterEntryCard } from "@/modules/parking/components/register-entry-card";
+import { RegisterExitCard } from "@/modules/parking/components/register-exit-card";
+import { SearchVehicleCard } from "@/modules/parking/components/search-vehicle-card";
+import { useParkingStore } from "@/modules/parking/store/parking-store";
 
 export default function ParkingPage() {
 	const { searchResult } = useParkingStore();
