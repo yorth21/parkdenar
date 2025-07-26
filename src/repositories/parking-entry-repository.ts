@@ -1,184 +1,172 @@
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { parkingEntries, users, vehicleTypes } from "@/db/schema";
+import type {
+	CreateParkingEntryInput,
+	UpdateParkingEntryInput,
+} from "@/types/parking-entry";
 
-export type CreateParkingEntryInput = {
-	plate: string;
-	vehicleTypeId: number;
-	initialRateId: number;
-	userId: string;
-	entryTime?: Date;
-};
+// Crear entrada de parqueadero
+export async function createParkingEntry(input: CreateParkingEntryInput) {
+	const [parkingEntry] = await db
+		.insert(parkingEntries)
+		.values({
+			...input,
+			plate: input.plate.toUpperCase(),
+			entryTime: input.entryTime || new Date(),
+		})
+		.returning();
+	return parkingEntry;
+}
 
-export type UpdateParkingEntryInput = {
-	status?: "Open" | "Closed" | "Paid";
-};
+// Obtener entrada por ID
+export async function findParkingEntryById(id: number) {
+	const [entry] = await db
+		.select()
+		.from(parkingEntries)
+		.where(eq(parkingEntries.id, id))
+		.limit(1);
+	return entry || null;
+}
 
-export class ParkingEntryRepository {
-	// Crear entrada de parqueadero
-	static async create(input: CreateParkingEntryInput) {
-		const entryTime = input.entryTime || new Date();
+// Obtener entrada activa por placa
+export async function findActiveParkingEntryByPlate(plate: string) {
+	const [entry] = await db
+		.select({
+			id: parkingEntries.id,
+			plate: parkingEntries.plate,
+			vehicleTypeId: parkingEntries.vehicleTypeId,
+			entryTime: parkingEntries.entryTime,
+			initialRateId: parkingEntries.initialRateId,
+			userId: parkingEntries.userId,
+			status: parkingEntries.status,
+			vehicleTypeName: vehicleTypes.name,
+			userName: users.name,
+		})
+		.from(parkingEntries)
+		.leftJoin(vehicleTypes, eq(parkingEntries.vehicleTypeId, vehicleTypes.id))
+		.leftJoin(users, eq(parkingEntries.userId, users.id))
+		.where(
+			and(
+				eq(parkingEntries.plate, plate.toUpperCase()),
+				eq(parkingEntries.status, "Open"),
+			),
+		)
+		.limit(1);
+	return entry || null;
+}
 
-		const [parkingEntry] = await db
-			.insert(parkingEntries)
-			.values({
-				plate: input.plate.toUpperCase(),
-				vehicleTypeId: input.vehicleTypeId,
-				entryTime: entryTime.getTime(),
-				initialRateId: input.initialRateId,
-				userId: input.userId,
-				status: "Open",
-			})
-			.returning();
-		return parkingEntry;
-	}
+// Obtener todas las entradas abiertas
+export async function findAllOpenParkingEntries() {
+	return db
+		.select({
+			id: parkingEntries.id,
+			plate: parkingEntries.plate,
+			vehicleTypeId: parkingEntries.vehicleTypeId,
+			entryTime: parkingEntries.entryTime,
+			initialRateId: parkingEntries.initialRateId,
+			userId: parkingEntries.userId,
+			status: parkingEntries.status,
+			vehicleTypeName: vehicleTypes.name,
+			userName: users.name,
+		})
+		.from(parkingEntries)
+		.leftJoin(vehicleTypes, eq(parkingEntries.vehicleTypeId, vehicleTypes.id))
+		.leftJoin(users, eq(parkingEntries.userId, users.id))
+		.where(eq(parkingEntries.status, "Open"))
+		.orderBy(desc(parkingEntries.entryTime));
+}
 
-	// Obtener entrada por ID
-	static async findById(id: number) {
-		return db
-			.select()
-			.from(parkingEntries)
-			.where(eq(parkingEntries.id, id))
-			.limit(1)
-			.then((rows) => rows[0] || null);
-	}
+// Obtener entradas recientes
+export async function findRecentParkingEntries(limit: number = 10) {
+	return db
+		.select({
+			id: parkingEntries.id,
+			plate: parkingEntries.plate,
+			vehicleTypeId: parkingEntries.vehicleTypeId,
+			entryTime: parkingEntries.entryTime,
+			status: parkingEntries.status,
+			vehicleTypeName: vehicleTypes.name,
+			userName: users.name,
+		})
+		.from(parkingEntries)
+		.leftJoin(vehicleTypes, eq(parkingEntries.vehicleTypeId, vehicleTypes.id))
+		.leftJoin(users, eq(parkingEntries.userId, users.id))
+		.orderBy(desc(parkingEntries.entryTime))
+		.limit(limit);
+}
 
-	// Obtener entrada activa por placa
-	static async findActiveByPlate(plate: string) {
-		return db
-			.select({
-				id: parkingEntries.id,
-				plate: parkingEntries.plate,
-				vehicleTypeId: parkingEntries.vehicleTypeId,
-				entryTime: parkingEntries.entryTime,
-				initialRateId: parkingEntries.initialRateId,
-				userId: parkingEntries.userId,
-				status: parkingEntries.status,
-				vehicleTypeName: vehicleTypes.name,
-				userName: users.name,
-			})
-			.from(parkingEntries)
-			.leftJoin(vehicleTypes, eq(parkingEntries.vehicleTypeId, vehicleTypes.id))
-			.leftJoin(users, eq(parkingEntries.userId, users.id))
-			.where(
-				and(
-					eq(parkingEntries.plate, plate.toUpperCase()),
-					eq(parkingEntries.status, "Open"),
-				),
-			)
-			.limit(1)
-			.then((rows) => rows[0] || null);
-	}
+// Obtener entradas por usuario
+export async function findParkingEntriesByUser(userId: string) {
+	return db
+		.select()
+		.from(parkingEntries)
+		.where(eq(parkingEntries.userId, userId))
+		.orderBy(desc(parkingEntries.entryTime));
+}
 
-	// Obtener todas las entradas abiertas
-	static async findAllOpen() {
-		return db
-			.select({
-				id: parkingEntries.id,
-				plate: parkingEntries.plate,
-				vehicleTypeId: parkingEntries.vehicleTypeId,
-				entryTime: parkingEntries.entryTime,
-				initialRateId: parkingEntries.initialRateId,
-				userId: parkingEntries.userId,
-				status: parkingEntries.status,
-				vehicleTypeName: vehicleTypes.name,
-				userName: users.name,
-			})
-			.from(parkingEntries)
-			.leftJoin(vehicleTypes, eq(parkingEntries.vehicleTypeId, vehicleTypes.id))
-			.leftJoin(users, eq(parkingEntries.userId, users.id))
-			.where(eq(parkingEntries.status, "Open"))
-			.orderBy(desc(parkingEntries.entryTime));
-	}
+// Actualizar entrada
+export async function updateParkingEntry(
+	id: number,
+	input: UpdateParkingEntryInput,
+) {
+	const [updatedEntry] = await db
+		.update(parkingEntries)
+		.set(input)
+		.where(eq(parkingEntries.id, id))
+		.returning();
+	return updatedEntry;
+}
 
-	// Obtener entradas recientes
-	static async findRecent(limit: number = 10) {
-		return db
-			.select({
-				id: parkingEntries.id,
-				plate: parkingEntries.plate,
-				vehicleTypeId: parkingEntries.vehicleTypeId,
-				entryTime: parkingEntries.entryTime,
-				status: parkingEntries.status,
-				vehicleTypeName: vehicleTypes.name,
-				userName: users.name,
-			})
-			.from(parkingEntries)
-			.leftJoin(vehicleTypes, eq(parkingEntries.vehicleTypeId, vehicleTypes.id))
-			.leftJoin(users, eq(parkingEntries.userId, users.id))
-			.orderBy(desc(parkingEntries.entryTime))
-			.limit(limit);
-	}
+// Cerrar entrada (marcar como cerrada)
+export async function closeParkingEntry(id: number) {
+	return updateParkingEntry(id, { status: "Closed" });
+}
 
-	// Obtener entradas por usuario
-	static async findByUser(userId: string) {
-		return db
-			.select()
-			.from(parkingEntries)
-			.where(eq(parkingEntries.userId, userId))
-			.orderBy(desc(parkingEntries.entryTime));
-	}
+// Marcar como pagada
+export async function markParkingEntryAsPaid(id: number) {
+	return updateParkingEntry(id, { status: "Paid" });
+}
 
-	// Actualizar entrada
-	static async update(id: number, input: UpdateParkingEntryInput) {
-		const [updatedEntry] = await db
-			.update(parkingEntries)
-			.set(input)
-			.where(eq(parkingEntries.id, id))
-			.returning();
-		return updatedEntry;
-	}
+// Verificar si una placa tiene entrada activa
+export async function hasActiveParkingEntry(plate: string) {
+	const entry = await findActiveParkingEntryByPlate(plate);
+	return !!entry;
+}
 
-	// Cerrar entrada (marcar como cerrada)
-	static async close(id: number) {
-		return ParkingEntryRepository.update(id, { status: "Closed" });
-	}
+// Contar entradas abiertas
+export async function countOpenParkingEntries() {
+	const result = await db
+		.select({ count: sql<number>`count(*)` })
+		.from(parkingEntries)
+		.where(eq(parkingEntries.status, "Open"));
+	return result[0]?.count || 0;
+}
 
-	// Marcar como pagada
-	static async markAsPaid(id: number) {
-		return ParkingEntryRepository.update(id, { status: "Paid" });
-	}
+// Eliminar entrada (solo para casos especiales)
+export async function deleteParkingEntry(id: number) {
+	const [deletedEntry] = await db
+		.delete(parkingEntries)
+		.where(eq(parkingEntries.id, id))
+		.returning();
+	return deletedEntry;
+}
 
-	// Verificar si una placa tiene entrada activa
-	static async hasActiveEntry(plate: string) {
-		const entry = await ParkingEntryRepository.findActiveByPlate(plate);
-		return !!entry;
-	}
-
-	// Contar entradas abiertas
-	static async countOpen() {
-		const result = await db
-			.select({ count: sql<number>`count(*)` })
-			.from(parkingEntries)
-			.where(eq(parkingEntries.status, "Open"));
-		return result[0]?.count || 0;
-	}
-
-	// Eliminar entrada (solo para casos especiales)
-	static async delete(id: number) {
-		const [deletedEntry] = await db
-			.delete(parkingEntries)
-			.where(eq(parkingEntries.id, id))
-			.returning();
-		return deletedEntry;
-	}
-
-	// Buscar entradas por placa (todas, no solo activas)
-	static async findByPlate(plate: string) {
-		return db
-			.select({
-				id: parkingEntries.id,
-				plate: parkingEntries.plate,
-				vehicleTypeId: parkingEntries.vehicleTypeId,
-				entryTime: parkingEntries.entryTime,
-				status: parkingEntries.status,
-				vehicleTypeName: vehicleTypes.name,
-				userName: users.name,
-			})
-			.from(parkingEntries)
-			.leftJoin(vehicleTypes, eq(parkingEntries.vehicleTypeId, vehicleTypes.id))
-			.leftJoin(users, eq(parkingEntries.userId, users.id))
-			.where(eq(parkingEntries.plate, plate.toUpperCase()))
-			.orderBy(desc(parkingEntries.entryTime));
-	}
+// Buscar entradas por placa (todas, no solo activas)
+export async function findParkingEntriesByPlate(plate: string) {
+	return db
+		.select({
+			id: parkingEntries.id,
+			plate: parkingEntries.plate,
+			vehicleTypeId: parkingEntries.vehicleTypeId,
+			entryTime: parkingEntries.entryTime,
+			status: parkingEntries.status,
+			vehicleTypeName: vehicleTypes.name,
+			userName: users.name,
+		})
+		.from(parkingEntries)
+		.leftJoin(vehicleTypes, eq(parkingEntries.vehicleTypeId, vehicleTypes.id))
+		.leftJoin(users, eq(parkingEntries.userId, users.id))
+		.where(eq(parkingEntries.plate, plate.toUpperCase()))
+		.orderBy(desc(parkingEntries.entryTime));
 }
