@@ -217,7 +217,10 @@ export const parkingExit = sqliteTable(
 			.references(() => users.id, { onDelete: "restrict" }),
 		exitTime: integer("exit_time", { mode: "timestamp_ms" }).notNull(),
 		calculatedAmount: integer("calculated_amount").notNull(),
-		status: text("status").$type<"Paid" | "Voided">().notNull().default("Paid"),
+		status: text("status")
+			.$type<"Paid" | "NotPaid" | "Voided">()
+			.notNull()
+			.default("NotPaid"),
 	},
 	(parkingExit) => [
 		uniqueIndex("parking_exit_entry_uq").on(parkingExit.entryId),
