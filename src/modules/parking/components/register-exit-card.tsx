@@ -1,7 +1,9 @@
 "use client";
 
 import { Car, Clock, LogIn, LogOut } from "lucide-react";
-import { useVehicleSearchStore } from "@/modules/parking/store/vehicle-search-store";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
+import { useVehicleSearchStore } from "@/modules/parking/stores/vehicle-search-store";
 import { Button } from "@/shared/components/ui/button";
 import {
 	Card,
@@ -11,9 +13,24 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/shared/components/ui/card";
+import { createParkingExitAction } from "../actions/parking-action";
 
 export function RegisterExitCard() {
-	const { vehicleSearchResult } = useVehicleSearchStore();
+	const { vehicleSearchResult, reset } = useVehicleSearchStore();
+	const { data: session } = useSession();
+
+	const handleRegisterExit = async () => {
+		console.log("Exit");
+		const result = await createParkingExitAction({
+			plate: vehicleSearchResult?.data?.plate || "",
+			userId: session?.user?.id || "",
+		});
+
+		if (result.success) {
+			reset();
+			toast.success("Salida registrada correctamente");
+		}
+	};
 
 	return (
 		<Card>
@@ -76,10 +93,10 @@ export function RegisterExitCard() {
 				</div>
 			</CardContent>
 			<CardFooter className="flex justify-between">
-				<Button variant="outline" onClick={() => {}}>
+				<Button variant="outline" onClick={reset}>
 					Cancelar
 				</Button>
-				<Button onClick={() => {}} variant="destructive">
+				<Button onClick={handleRegisterExit} variant="destructive">
 					<LogOut className="mr-2 h-4 w-4" />
 					Registrar Salida
 				</Button>
