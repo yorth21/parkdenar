@@ -106,9 +106,15 @@ export async function registerExit(
 			exitTime,
 			activeEntry.vehicleTypeId,
 		);
-
-		// TODO: Crear registro de salida y actualizar entrada
-		// await ParkingExitRepository.create({ ... });
+		/*
+		await createParkingExit({
+			entryId: activeEntry.id,
+			userId: activeEntry.userId,
+			exitTime,
+			calculatedAmount: amount,
+			status: ParkingExitStatus.Paid,
+		});
+*/
 
 		return {
 			success: true,
@@ -121,6 +127,7 @@ export async function registerExit(
 			},
 		};
 	} catch (_error) {
+		console.error("Error registrando salida:", _error);
 		return {
 			success: false,
 			message: "Error interno del servidor",
@@ -201,10 +208,16 @@ async function calculateParkingAmount(
 			if (extraRate) {
 				totalAmount += extraRate.amount;
 			} else {
+				console.error(
+					`No se encontró tarifa extra para banda ${band.id} y vehículo ${vehicleTypeId}`,
+				);
 				throw new Error(
 					`No se encontró tarifa extra para banda ${band.id} y vehículo ${vehicleTypeId}`,
 				);
 			}
+
+			console.log(band);
+			console.log(extraRate);
 
 			// Avanzar a la siguiente hora
 			currentTime = new Date(currentTime.getTime() + 60 * 60 * 1000);
@@ -212,6 +225,7 @@ async function calculateParkingAmount(
 
 		return totalAmount;
 	} catch (_error) {
+		console.error(_error);
 		throw new Error("Error calculando monto del parqueadero");
 	}
 }

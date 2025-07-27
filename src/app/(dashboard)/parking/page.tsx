@@ -4,7 +4,7 @@ import { EmptyStateCard } from "@/modules/parking/components/empty-state-card";
 import { RegisterEntryCard } from "@/modules/parking/components/register-entry-card";
 import { RegisterExitCard } from "@/modules/parking/components/register-exit-card";
 import { SearchVehicleCard } from "@/modules/parking/components/search-vehicle-card";
-import { useVehicleSearchStore } from "@/modules/parking/store/vehicle-search-store";
+import { useVehicleSearchStore } from "@/modules/parking/stores/vehicle-search-store";
 
 export default function ParkingPage() {
 	const { vehicleSearchResult } = useVehicleSearchStore();

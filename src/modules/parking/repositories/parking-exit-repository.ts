@@ -1,6 +1,7 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { parkingEntries, parkingExit, users } from "@/db/schema";
+import { ParkingExitStatus } from "@/modules/parking/enums/parking";
 import type {
 	CreateParkingExitInput,
 	UpdateParkingExitInput,
@@ -11,8 +12,11 @@ export const createParkingExit = async (input: CreateParkingExitInput) => {
 	const [exit] = await db
 		.insert(parkingExit)
 		.values({
-			...input,
-			exitTime: input.exitTime || new Date(),
+			entryId: input.entryId,
+			userId: input.userId,
+			exitTime: input.exitTime,
+			calculatedAmount: input.calculatedAmount,
+			status: input.status,
 		})
 		.returning();
 	return exit;
@@ -100,7 +104,7 @@ export const findPaidParkingExits = async () => {
 	return db
 		.select()
 		.from(parkingExit)
-		.where(eq(parkingExit.status, "Paid"))
+		.where(eq(parkingExit.status, ParkingExitStatus.Paid))
 		.orderBy(desc(parkingExit.exitTime));
 };
 
@@ -109,7 +113,7 @@ export const findVoidedParkingExits = async () => {
 	return db
 		.select()
 		.from(parkingExit)
-		.where(eq(parkingExit.status, "Voided"))
+		.where(eq(parkingExit.status, ParkingExitStatus.Voided))
 		.orderBy(desc(parkingExit.exitTime));
 };
 
@@ -128,12 +132,12 @@ export const updateParkingExit = async (
 
 // Anular salida
 export const voidParkingExit = async (id: number) => {
-	return updateParkingExit(id, { status: "Voided" });
+	return updateParkingExit(id, { status: ParkingExitStatus.Voided });
 };
 
 // Marcar como pagada
 export const markParkingExitAsPaid = async (id: number) => {
-	return updateParkingExit(id, { status: "Paid" });
+	return updateParkingExit(id, { status: ParkingExitStatus.Paid });
 };
 
 // Eliminar salida (solo casos especiales)
@@ -173,7 +177,7 @@ export const calculateTotalRevenue = async () => {
 	const result = await db
 		.select({ total: sql<number>`sum(${parkingExit.calculatedAmount})` })
 		.from(parkingExit)
-		.where(eq(parkingExit.status, "Paid"));
+		.where(eq(parkingExit.status, ParkingExitStatus.Paid));
 	return result[0]?.total || 0;
 };
 
@@ -190,7 +194,7 @@ export const calculateRevenueByDateRange = async (
 		.from(parkingExit)
 		.where(
 			and(
-				eq(parkingExit.status, "Paid"),
+				eq(parkingExit.status, ParkingExitStatus.Paid),
 				sql`${parkingExit.exitTime} >= ${startTimestamp}`,
 				sql`${parkingExit.exitTime} <= ${endTimestamp}`,
 			),
