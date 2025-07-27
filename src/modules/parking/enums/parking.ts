@@ -6,5 +6,6 @@ export enum ParkingEntryStatus {
 
 export enum ParkingExitStatus {
 	Paid = "Paid",
+	NotPaid = "NotPaid",
 	Voided = "Voided",
 }
