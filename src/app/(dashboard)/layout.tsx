@@ -1,14 +1,14 @@
 import { redirect } from "next/navigation";
 import type React from "react";
 import { auth } from "@/auth";
-import { DynamicBreadcrumb } from "@/shared/components/dynamic-breadcrumb";
-import { AppSidebar } from "@/shared/components/sidebar/app-sidebar";
-import { Separator } from "@/shared/components/ui/separator";
+import { AppSidebar } from "@/components/sidebar/app-sidebar";
+import { DynamicBreadcrumb } from "@/components/sidebar/dynamic-breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import {
 	SidebarInset,
 	SidebarProvider,
 	SidebarTrigger,
-} from "@/shared/components/ui/sidebar";
+} from "@/components/ui/sidebar";
 
 export default async function DashboardLayout({
 	children,

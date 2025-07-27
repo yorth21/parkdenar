@@ -8,14 +8,14 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/shared/components/ui/card";
+} from "@/components/ui/card";
 import {
 	Form,
 	FormControl,
@@ -23,8 +23,8 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/shared/components/ui/form";
-import { Input } from "@/shared/components/ui/input";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
 // Schema de validación con Zod
 const loginSchema = z.object({

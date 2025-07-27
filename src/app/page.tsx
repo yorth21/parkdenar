@@ -1,6 +1,6 @@
 import { Car, Clock, DollarSign, FileText } from "lucide-react";
 import Link from "next/link";
-import { buttonVariants } from "@/shared/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 export default async function Home() {
 	return (

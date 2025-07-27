@@ -1,13 +1,14 @@
 "use client";
 
-import { EmptyStateCard } from "@/modules/parking/components/empty-state-card";
-import { RegisterEntryCard } from "@/modules/parking/components/register-entry-card";
-import { RegisterExitCard } from "@/modules/parking/components/register-exit-card";
-import { SearchVehicleCard } from "@/modules/parking/components/search-vehicle-card";
-import { useVehicleSearchStore } from "@/modules/parking/stores/vehicle-search-store";
-
+/*
+import { EmptyStateCard } from "@/components/empty-state-card";
+import { RegisterEntryCard } from "@/components/register-entry-card";
+import { RegisterExitCard } from "@/components/register-exit-card";
+import { SearchVehicleCard } from "@/components/search-vehicle-card";
+import { useVehicleSearchStore } from "@/stores/vehicle-search-store";
+*/
 export default function ParkingPage() {
-	const { vehicleSearchResult } = useVehicleSearchStore();
+	//const { vehicleSearchResult } = useVehicleSearchStore();
 
 	return (
 		<>
@@ -22,12 +23,12 @@ export default function ParkingPage() {
 			</div>
 
 			<div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-				{/* Columna Izquierda - Búsqueda */}
+				{/* Columna Izquierda - Búsqueda 
 				<div>
 					<SearchVehicleCard />
 				</div>
 
-				{/* Columna Derecha - Registro de Entrada/Salida */}
+				{/* Columna Derecha - Registro de Entrada/Salida 
 				<div>
 					{vehicleSearchResult === null ? (
 						<EmptyStateCard />
@@ -36,7 +37,7 @@ export default function ParkingPage() {
 					) : (
 						<RegisterExitCard />
 					)}
-				</div>
+				</div>*/}
 			</div>
 		</>
 	);
