@@ -1,7 +1,7 @@
 "use client";
 
 import { Car, Clock, LogIn, LogOut } from "lucide-react";
-import { useParkingStore } from "@/modules/parking/store/parking-store";
+import { useVehicleSearchStore } from "@/modules/parking/store/vehicle-search-store";
 import { Button } from "@/shared/components/ui/button";
 import {
 	Card,
@@ -13,10 +13,7 @@ import {
 } from "@/shared/components/ui/card";
 
 export function RegisterExitCard() {
-	const { searchPlate, foundVehicle, registerExit, resetForm } =
-		useParkingStore();
-
-	if (!foundVehicle) return null;
+	const { vehicleSearchResult } = useVehicleSearchStore();
 
 	return (
 		<Card>
@@ -31,7 +28,7 @@ export function RegisterExitCard() {
 				<div className="flex justify-center">
 					<div className="bg-yellow-400 border-4 border-black rounded-md px-6 py-2 inline-block shadow text-center">
 						<span className="font-mono text-2xl font-bold tracking-widest text-black drop-shadow">
-							{searchPlate || "AAA-123"}
+							{vehicleSearchResult?.data?.plate}
 						</span>
 					</div>
 				</div>
@@ -52,7 +49,9 @@ export function RegisterExitCard() {
 							<Car className="h-4 w-4 text-muted-foreground" />
 							<span className="text-sm font-medium">Tipo:</span>
 						</div>
-						<span className="text-sm">Carrp emcpmtradp</span>
+						<span className="text-sm">
+							{vehicleSearchResult?.data?.vehicleType}
+						</span>
 					</div>
 
 					<div className="flex items-center justify-between">
@@ -60,7 +59,9 @@ export function RegisterExitCard() {
 							<LogIn className="h-4 w-4 text-green-600" />
 							<span className="text-sm font-medium">Entrada:</span>
 						</div>
-						<span className="text-sm">carro fecha</span>
+						<span className="text-sm">
+							{vehicleSearchResult?.data?.entryTime.toLocaleString()}
+						</span>
 					</div>
 
 					<div className="flex items-center justify-between">
@@ -69,25 +70,16 @@ export function RegisterExitCard() {
 							<span className="text-sm font-medium">Tiempo transcurrido:</span>
 						</div>
 						<span className="text-sm font-mono">
-							{(() => {
-								const entryTime = new Date(foundVehicle.entryTime);
-								const now = new Date();
-								const diffMs = now.getTime() - entryTime.getTime();
-								const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-								const diffMinutes = Math.floor(
-									(diffMs % (1000 * 60 * 60)) / (1000 * 60),
-								);
-								return `${diffHours}h ${diffMinutes}m`;
-							})()}
+							{vehicleSearchResult?.data?.timeParked}
 						</span>
 					</div>
 				</div>
 			</CardContent>
 			<CardFooter className="flex justify-between">
-				<Button variant="outline" onClick={resetForm}>
+				<Button variant="outline" onClick={() => {}}>
 					Cancelar
 				</Button>
-				<Button onClick={registerExit} variant="destructive">
+				<Button onClick={() => {}} variant="destructive">
 					<LogOut className="mr-2 h-4 w-4" />
 					Registrar Salida
 				</Button>
