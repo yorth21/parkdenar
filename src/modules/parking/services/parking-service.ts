@@ -1,4 +1,3 @@
-import type { ParkingEntryStatus } from "@/modules/parking/enums/parking";
 import {
 	createParkingEntry,
 	findActiveParkingEntryByPlate,
