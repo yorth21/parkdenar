@@ -4,21 +4,10 @@ import { EmptyStateCard } from "@/modules/parking/components/empty-state-card";
 import { RegisterEntryCard } from "@/modules/parking/components/register-entry-card";
 import { RegisterExitCard } from "@/modules/parking/components/register-exit-card";
 import { SearchVehicleCard } from "@/modules/parking/components/search-vehicle-card";
-import { useParkingStore } from "@/modules/parking/store/parking-store";
+import { useVehicleSearchStore } from "@/modules/parking/store/vehicle-search-store";
 
 export default function ParkingPage() {
-	const { searchResult } = useParkingStore();
-
-	const renderActionCard = () => {
-		switch (searchResult) {
-			case "not_found":
-				return <RegisterEntryCard />;
-			case "found":
-				return <RegisterExitCard />;
-			default:
-				return <EmptyStateCard />;
-		}
-	};
+	const { vehicleSearchResult } = useVehicleSearchStore();
 
 	return (
 		<>
@@ -39,7 +28,15 @@ export default function ParkingPage() {
 				</div>
 
 				{/* Columna Derecha - Registro de Entrada/Salida */}
-				<div>{renderActionCard()}</div>
+				<div>
+					{vehicleSearchResult === null ? (
+						<EmptyStateCard />
+					) : vehicleSearchResult.found === false ? (
+						<RegisterEntryCard />
+					) : (
+						<RegisterExitCard />
+					)}
+				</div>
 			</div>
 		</>
 	);
