@@ -3,14 +3,26 @@ import { db } from "@/db";
 import { vehicleTypes } from "@/db/schema";
 
 export async function findVehicleTypeById(id: number) {
-	const [row] = await db
-		.select()
-		.from(vehicleTypes)
-		.where(eq(vehicleTypes.id, id))
-		.limit(1);
-	return row || null;
+	try {
+		const [vehicleType] = await db
+			.select()
+			.from(vehicleTypes)
+			.where(eq(vehicleTypes.id, id))
+			.limit(1);
+		return { ok: true, data: vehicleType || null };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
 }
 
 export async function findAllActiveVehicleTypes() {
-	return db.select().from(vehicleTypes).where(eq(vehicleTypes.isActive, 1));
+	try {
+		const listVehicleTypes = await db
+			.select()
+			.from(vehicleTypes)
+			.where(eq(vehicleTypes.isActive, 1));
+		return { ok: true, data: listVehicleTypes };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
 }

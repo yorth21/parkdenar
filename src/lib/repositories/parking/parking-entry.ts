@@ -3,25 +3,49 @@ import { db } from "@/db";
 import { parkingEntries } from "@/db/schema";
 
 export async function findParkingEntryById(id: number) {
-	const [entry] = await db
-		.select()
-		.from(parkingEntries)
-		.where(eq(parkingEntries.id, id))
-		.limit(1);
-	return entry || null;
+	try {
+		const [entry] = await db
+			.select()
+			.from(parkingEntries)
+			.where(eq(parkingEntries.id, id))
+			.limit(1);
+
+		if (!entry) {
+			return {
+				ok: false,
+				error: `No se encontró la entrada para el ID ${id}`,
+			};
+		}
+
+		return { ok: true, data: entry };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
 }
 
 // Obtener entrada activa por placa
 export async function findActiveParkingEntryByPlate(plate: string) {
-	const [entry] = await db
-		.select()
-		.from(parkingEntries)
-		.where(
-			and(
-				eq(parkingEntries.plate, plate.toUpperCase()),
-				eq(parkingEntries.status, "Open"),
-			),
-		)
-		.limit(1);
-	return entry || null;
+	try {
+		const [entry] = await db
+			.select()
+			.from(parkingEntries)
+			.where(
+				and(
+					eq(parkingEntries.plate, plate.toUpperCase()),
+					eq(parkingEntries.status, "Open"),
+				),
+			)
+			.limit(1);
+
+		if (!entry) {
+			return {
+				ok: false,
+				error: `No se encontró la entrada para la placa ${plate}`,
+			};
+		}
+
+		return { ok: true, data: entry };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
 }

@@ -7,23 +7,27 @@ export const findCurrentExtraRate = async (
 	vehicleTypeId: number,
 	date: Date = new Date(),
 ) => {
-	const timestamp = date.getTime();
+	try {
+		const timestamp = date.getTime();
 
-	const [row] = await db
-		.select()
-		.from(extraRates)
-		.where(
-			and(
-				eq(extraRates.bandId, bandId),
-				eq(extraRates.vehicleTypeId, vehicleTypeId),
-				sql`${extraRates.validFrom} <= ${timestamp}`,
-				or(
-					isNull(extraRates.validTo),
-					sql`${extraRates.validTo} >= ${timestamp}`,
+		const [extraRate] = await db
+			.select()
+			.from(extraRates)
+			.where(
+				and(
+					eq(extraRates.bandId, bandId),
+					eq(extraRates.vehicleTypeId, vehicleTypeId),
+					sql`${extraRates.validFrom} <= ${timestamp}`,
+					or(
+						isNull(extraRates.validTo),
+						sql`${extraRates.validTo} >= ${timestamp}`,
+					),
 				),
-			),
-		)
-		.orderBy(desc(extraRates.validFrom))
-		.limit(1);
-	return row || null;
+			)
+			.orderBy(desc(extraRates.validFrom))
+			.limit(1);
+		return { ok: true, data: extraRate || null };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
 };
