@@ -1,7 +1,9 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Search } from "lucide-react";
-import { useParkingStore } from "@/modules/parking/store/parking-store";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/shared/components/ui/button";
 import {
 	Card,
@@ -10,12 +12,36 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/shared/components/ui/card";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
+import { useVehicleSearchStore } from "../store/vehicle-search-store";
+
+const searchPlateSchema = z.object({
+	searchPlate: z.string().min(3, "La placa es requerida"),
+});
+
+type SearchPlateSchema = z.infer<typeof searchPlateSchema>;
 
 export function SearchVehicleCard() {
-	const { searchPlate, isSearching, setSearchPlate, searchVehicle } =
-		useParkingStore();
+	const { searchVehicle } = useVehicleSearchStore();
+
+	const form = useForm<SearchPlateSchema>({
+		resolver: zodResolver(searchPlateSchema),
+		defaultValues: {
+			searchPlate: "",
+		},
+	});
+
+	const onSubmit = (data: SearchPlateSchema) => {
+		searchVehicle(data.searchPlate);
+	};
 
 	return (
 		<Card>
@@ -26,32 +52,37 @@ export function SearchVehicleCard() {
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-4">
-				<div className="space-y-2">
-					<Label htmlFor="plate-search">Número de placa</Label>
-					<Input
-						id="plate-search"
-						placeholder="AAA-123"
-						value={searchPlate}
-						onChange={(e) => setSearchPlate(e.target.value.toUpperCase())}
-						disabled={isSearching}
-						className="font-mono text-center font-bold tracking-[0.2em]"
-						autoFocus={true}
-					/>
-				</div>
-				<Button
-					onClick={searchVehicle}
-					disabled={isSearching || !searchPlate.trim()}
-					className="w-full"
-				>
-					{isSearching ? (
-						"Buscando..."
-					) : (
-						<>
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className="w-full space-y-4"
+					>
+						<FormField
+							control={form.control}
+							name="searchPlate"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Número de placa</FormLabel>
+									<FormControl>
+										<Input
+											placeholder="ABC123"
+											{...field}
+											onChange={(e) =>
+												field.onChange(e.target.value.toUpperCase())
+											}
+											className="font-mono text-center font-bold tracking-[0.2em]"
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<Button type="submit" className="w-full">
 							<Search className="mr-2 h-4 w-4" />
 							Buscar
-						</>
-					)}
-				</Button>
+						</Button>
+					</form>
+				</Form>
 			</CardContent>
 		</Card>
 	);
