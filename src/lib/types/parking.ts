@@ -1,4 +1,4 @@
-import type { ParkingEntry } from "@/lib/types/parking-schema";
+import type { ParkingEntry, ParkingExit } from "@/lib/types/parking-schema";
 
 export interface SearchVehicleRequest {
 	plate: string;
@@ -24,6 +24,26 @@ export interface CreateEntryResponse {
 	entry: ParkingEntry;
 }
 
+export interface ParkingChargeDetail {
+	chargeName: string;
+	amount: number;
+}
+
+export interface ParkingCalculationResult {
+	totalAmount: number;
+	charges: ParkingChargeDetail[];
+}
+
+export interface CreateExitRequest {
+	plate: string;
+	userId: string;
+}
+
+export interface CreateExitResponse {
+	exit: ParkingExit;
+	totalAmount: number;
+	charges: ParkingChargeDetail[];
+}
 // TODO: Example types for parking
 /*// Tipos para las acciones de parking
 import type { ParkingEntry, VehicleType } from "./database";

@@ -28,6 +28,7 @@ export interface ExtraRate {
 	validTo: Date | null;
 }
 
+export type ParkingEntryStatus = "Open" | "Closed" | "Paid";
 export interface ParkingEntry {
 	id: number;
 	plate: string;
@@ -35,23 +36,25 @@ export interface ParkingEntry {
 	entryTime: Date;
 	initialRateId: number;
 	userId: string;
-	status: "Open" | "Closed" | "Paid";
+	status: ParkingEntryStatus;
 }
 
+export type ParkingExitStatus = "Paid" | "NotPaid" | "Voided";
 export interface ParkingExit {
 	id: number;
 	entryId: number;
 	userId: string;
 	exitTime: Date;
 	calculatedAmount: number;
-	status: "Paid" | "NotPaid" | "Voided";
+	status: ParkingExitStatus;
 }
 
+export type PaymentMethod = "Cash" | "Card" | "Transfer";
 export interface Payment {
 	id: number;
 	exitId: number | null;
 	amount: number;
-	method: "Cash" | "Card" | "Transfer";
+	method: PaymentMethod;
 	userId: string;
 	notes: string | null;
 	createdAt: Date;
