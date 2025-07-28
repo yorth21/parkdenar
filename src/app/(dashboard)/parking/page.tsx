@@ -12,6 +12,7 @@ export default function ParkingPage() {
 	const searchedVehicle = useSearchVehicleStore(
 		(state) => state.searchedVehicle,
 	);
+	const clearSearchedVehicle = useSearchVehicleStore((state) => state.clear);
 
 	const fetchVehicleTypes = useVehicleTypesStore(
 		(state) => state.fetchVehicleTypes,
@@ -19,7 +20,9 @@ export default function ParkingPage() {
 
 	useEffect(() => {
 		fetchVehicleTypes();
-	}, [fetchVehicleTypes]);
+
+		clearSearchedVehicle();
+	}, [fetchVehicleTypes, clearSearchedVehicle]);
 
 	return (
 		<>
