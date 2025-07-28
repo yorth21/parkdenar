@@ -1,7 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -18,7 +18,7 @@ export function SearchVehicleCard() {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const loading = useSearchVehicleStore((state) => state.loading);
 	const searchVehicle = useSearchVehicleStore((state) => state.searchVehicle);
-
+	const clearCount = useSearchVehicleStore((state) => state.clearCount);
 	const [plate, setPlate] = useState("");
 
 	async function handleSubmit(e: React.FormEvent) {
@@ -27,6 +27,12 @@ export function SearchVehicleCard() {
 		await searchVehicle(plate.toUpperCase().trim());
 		inputRef.current?.focus();
 	}
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: clearCount
+	useEffect(() => {
+		setPlate("");
+		inputRef.current?.focus();
+	}, [clearCount]);
 
 	return (
 		<Card>
