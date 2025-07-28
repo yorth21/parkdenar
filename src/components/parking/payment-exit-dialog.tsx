@@ -1,13 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
-	DialogClose,
 	DialogContent,
 	DialogDescription,
-	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
@@ -28,45 +33,69 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { PAYMENT_METHODS } from "@/lib/constants/payment-methods";
+import type { ParkingChargeDetail } from "@/lib/types/parking";
 
 interface PaymentExitDialogProps {
 	modalOpen: boolean;
-	setModalOpen: (open: boolean) => void;
-	onConfirmPayment: (data: z.infer<typeof paymentExitSchema>) => void;
+	onConfirmPayment: (data: {
+		paymentMethod: string;
+		amountCents: number;
+		notes?: string;
+	}) => void;
 	onExitWithoutPayment: () => void;
 	isLoading?: boolean;
+	defaultAmountCents: number;
+	charges: ParkingChargeDetail[];
 }
 
 const paymentExitSchema = z.object({
 	paymentMethod: z.enum(
 		PAYMENT_METHODS.map((pm) => pm.value) as [string, ...string[]],
+		{
+			error: "Debes seleccionar un método de pago",
+		},
 	),
-	amount: z.number().min(0),
+	amount: z.coerce
+		.number({ error: "El valor a cobrar es obligatorio" })
+		.min(0, { error: "El valor no puede ser negativo" }),
 	notes: z.string().optional(),
 });
 
+type PaymentExitValues = z.infer<typeof paymentExitSchema>;
+
 export function PaymentExitDialog({
 	modalOpen,
-	setModalOpen,
 	onConfirmPayment,
 	onExitWithoutPayment,
 	isLoading = false,
+	defaultAmountCents = 0,
+	charges = [],
 }: PaymentExitDialogProps) {
-	const form = useForm<z.infer<typeof paymentExitSchema>>({
+	const form = useForm({
 		resolver: zodResolver(paymentExitSchema),
 		defaultValues: {
-			paymentMethod: "",
-			amount: 0,
+			paymentMethod: PAYMENT_METHODS[0].value,
+			amount: defaultAmountCents / 100,
 			notes: "",
 		},
 	});
 
-	const onSubmit = (data: z.infer<typeof paymentExitSchema>) => {
-		onConfirmPayment(data);
-	};
+	useEffect(() => {
+		if (modalOpen) {
+			form.reset({
+				paymentMethod: PAYMENT_METHODS[0].value,
+				amount: defaultAmountCents / 100,
+				notes: "",
+			});
+		}
+	}, [modalOpen, defaultAmountCents, form]);
 
-	const handleExitWithoutPayment = () => {
-		onExitWithoutPayment();
+	const onSubmit = (data: PaymentExitValues) => {
+		onConfirmPayment({
+			paymentMethod: data.paymentMethod,
+			amountCents: data.amount * 100,
+			notes: data.notes,
+		});
 	};
 
 	return (
@@ -79,51 +108,127 @@ export function PaymentExitDialog({
 					</DialogDescription>
 				</DialogHeader>
 
+				{charges.length > 0 && (
+					<Accordion type="single" collapsible>
+						<AccordionItem value="charge-details">
+							<AccordionTrigger>Ver desglose de cargos</AccordionTrigger>
+							<AccordionContent>
+								<ul className="space-y-1">
+									{charges.map((c, i) => (
+										<li
+											key={`${c.chargeName}-${i}`}
+											className="flex justify-between"
+										>
+											<span>{c.chargeName}</span>
+											<span>
+												{Number(c.amount / 100).toLocaleString("es-CO", {
+													style: "currency",
+													currency: "COP",
+													minimumFractionDigits: 0,
+												})}
+											</span>
+										</li>
+									))}
+									<li className="flex justify-between font-semibold mt-2 text-lg">
+										<span>Total a cobrar</span>
+										<span>
+											{Number(
+												charges.reduce((acc, c) => acc + c.amount, 0) / 100,
+											).toLocaleString("es-CO", {
+												style: "currency",
+												currency: "COP",
+												minimumFractionDigits: 0,
+											})}
+										</span>
+									</li>
+								</ul>
+							</AccordionContent>
+						</AccordionItem>
+					</Accordion>
+				)}
+
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(onSubmit)}
-						className="flex flex-col gap-2"
+						className="flex flex-col gap-4"
 					>
-						{/* Fila 1: Método de pago y Valor a cobrar */}
-						<div className="flex flex-col gap-2 sm:flex-row sm:gap-4 w-full">
-							<div className="w-full sm:w-1/2">
-								<FormField
-									control={form.control}
-									name="paymentMethod"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Método de pago</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												defaultValue={field.value}
-											>
+						<div className="flex flex-col gap-2">
+							<div className="flex flex-col gap-2 sm:flex-row sm:gap-4 w-full">
+								<div className="w-full sm:w-1/2">
+									<FormField
+										control={form.control}
+										name="paymentMethod"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Método de pago</FormLabel>
+												<Select
+													onValueChange={field.onChange}
+													value={field.value}
+												>
+													<FormControl>
+														<SelectTrigger className="w-full">
+															<SelectValue placeholder="Selecciona" />
+														</SelectTrigger>
+													</FormControl>
+													<SelectContent>
+														{PAYMENT_METHODS.map((pm) => (
+															<SelectItem key={pm.value} value={pm.value}>
+																{pm.name}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+								<div className="w-full sm:w-1/2">
+									<FormField
+										control={form.control}
+										name="amount"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Valor a cobrar</FormLabel>
 												<FormControl>
-													<SelectTrigger className="w-full">
-														<SelectValue placeholder="Selecciona" />
-													</SelectTrigger>
+													<Input
+														type="text"
+														inputMode="decimal"
+														min={0}
+														placeholder="Valor a cobrar"
+														{...field}
+														value={
+															field.value === undefined || field.value === null
+																? ""
+																: Number(field.value).toLocaleString("es-CO", {
+																		style: "currency",
+																		currency: "COP",
+																		minimumFractionDigits: 0,
+																		maximumFractionDigits: 0,
+																	})
+														}
+														onChange={(e) => {
+															const raw = e.target.value.replace(/[^\d]/g, "");
+															field.onChange(raw ? Number(raw) : "");
+														}}
+													/>
 												</FormControl>
-												<SelectContent>
-													{PAYMENT_METHODS.map((pm) => (
-														<SelectItem key={pm.value} value={pm.value}>
-															{pm.name}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
 							</div>
-							<div className="w-full sm:w-1/2">
+
+							<div className="w-full">
 								<FormField
 									control={form.control}
-									name="amount"
+									name="notes"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Valor a cobrar</FormLabel>
+											<FormLabel>Notas (opcional)</FormLabel>
 											<FormControl>
-												<Input placeholder="Valor a cobrar" {...field} />
+												<Input placeholder="Notas" {...field} />
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -132,46 +237,26 @@ export function PaymentExitDialog({
 							</div>
 						</div>
 
-						{/* Fila 2: Notas */}
-						<div className="w-full">
-							<FormField
-								control={form.control}
-								name="notes"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Notas (opcional)</FormLabel>
-										<FormControl>
-											<Input placeholder="Notas" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+						<div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-4 mt-2">
+							<Button
+								variant="outline"
+								type="button"
+								onClick={onExitWithoutPayment}
+								disabled={isLoading}
+								className="w-full sm:w-auto"
+							>
+								Omitir pago
+							</Button>
+							<Button
+								type="submit"
+								disabled={isLoading}
+								className="w-full sm:w-auto"
+							>
+								{isLoading ? "Procesando..." : "Confirmar salida y cobro"}
+							</Button>
 						</div>
-
-						<Button className="mt-4" type="submit" disabled={isLoading}>
-							{isLoading ? "Procesando..." : "Confirmar salida y cobro"}
-						</Button>
 					</form>
 				</Form>
-
-				<DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
-					<Button
-						variant="outline"
-						onClick={handleExitWithoutPayment}
-						disabled={isLoading}
-						className="w-full sm:w-auto"
-					>
-						{isLoading ? "Procesando..." : "Cliente no paga"}
-					</Button>
-					<Button
-						onClick={form.handleSubmit(onSubmit)}
-						disabled={isLoading}
-						className="w-full sm:w-auto"
-					>
-						{isLoading ? "Procesando..." : "Confirmar salida y cobro"}
-					</Button>
-				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	);
