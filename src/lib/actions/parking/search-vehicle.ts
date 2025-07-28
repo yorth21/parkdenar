@@ -10,26 +10,38 @@ import type { ParkingEntry } from "@/lib/types/parking-schema";
 import type { ResponseAction } from "@/lib/types/response-actions";
 import { errorToString } from "@/lib/utils";
 
-export async function searchVehicle(
+export async function searchVehicleAction(
 	request: SearchVehicleRequest,
 ): Promise<ResponseAction<SearchVehicleResponse>> {
 	try {
 		const parkingEntry = await findActiveParkingEntryByPlate(request.plate);
 		if (!parkingEntry.ok) {
-			return { ok: true, data: { found: false, vehicle: null } };
+			return {
+				ok: true,
+				data: { found: false, plate: request.plate, vehicle: null },
+			};
 		}
 
 		const vehicle = parkingEntry.data as ParkingEntry;
 
 		const vehicleType = await findVehicleTypeById(vehicle.vehicleTypeId);
+		if (!vehicleType.ok || !vehicleType.data) {
+			return {
+				ok: false,
+				error: errorToString(
+					vehicleType.error,
+					"Error al buscar el tipo de vehículo",
+				),
+			};
+		}
 
 		return {
 			ok: true,
 			data: {
 				found: true,
+				plate: vehicle.plate,
 				vehicle: {
-					plate: vehicle.plate,
-					vehicleType: vehicleType.data?.name ?? "Desconocido",
+					vehicleType: vehicleType.data.name,
 					entryTime: vehicle.entryTime,
 					timeParked: calculateTimeParked(vehicle.entryTime, new Date()),
 				},
