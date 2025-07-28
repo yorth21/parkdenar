@@ -140,7 +140,7 @@ export function RegisterEntryCard() {
 				</div>
 			</CardContent>
 			<CardFooter className="flex justify-between pt-2">
-				<Button variant="outline" onClick={() => {}}>
+				<Button variant="outline" onClick={clearSearchedVehicle}>
 					Cancelar
 				</Button>
 				<Button
