@@ -5,6 +5,7 @@ import type { SearchVehicleResponse } from "@/lib/types/parking";
 type State = {
 	loading: boolean;
 	searchedVehicle: SearchVehicleResponse | null;
+	clearCount: number;
 };
 
 type Action = {
@@ -15,6 +16,7 @@ type Action = {
 export const useSearchVehicleStore = create<State & Action>((set) => ({
 	loading: false,
 	searchedVehicle: null,
+	clearCount: 0,
 	searchVehicle: async (plate) => {
 		set({ loading: true });
 
@@ -27,6 +29,10 @@ export const useSearchVehicleStore = create<State & Action>((set) => ({
 		set({ loading: false });
 	},
 	clear: () => {
-		set({ searchedVehicle: null, loading: false });
+		set((state) => ({
+			searchedVehicle: null,
+			loading: false,
+			clearCount: state.clearCount + 1,
+		}));
 	},
 }));
