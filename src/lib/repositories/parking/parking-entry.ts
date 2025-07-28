@@ -8,8 +8,11 @@ import type {
 
 export async function createParkingEntry(entry: Omit<ParkingEntry, "id">) {
 	try {
-		const newEntry = await db.insert(parkingEntries).values(entry).returning();
-		return { ok: true, data: newEntry[0] };
+		const [newEntry] = await db
+			.insert(parkingEntries)
+			.values(entry)
+			.returning();
+		return { ok: true, data: newEntry };
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}
