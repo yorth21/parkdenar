@@ -1,28 +1,32 @@
 import { create } from "zustand";
-import { searchVehicle } from "@/lib/actions/parking/search-vehicle";
+import { searchVehicleAction } from "@/lib/actions/parking/search-vehicle";
 import type { SearchVehicleResponse } from "@/lib/types/parking";
 
 type State = {
 	loading: boolean;
-	vehicle: SearchVehicleResponse | null;
+	searchedVehicle: SearchVehicleResponse | null;
 };
 
 type Action = {
 	searchVehicle: (plate: string) => Promise<void>;
+	clear: () => void;
 };
 
 export const useSearchVehicleStore = create<State & Action>((set) => ({
 	loading: false,
-	vehicle: null,
+	searchedVehicle: null,
 	searchVehicle: async (plate) => {
 		set({ loading: true });
 
-		const response = await searchVehicle({ plate });
+		const response = await searchVehicleAction({ plate });
 
 		if (response.ok) {
-			set({ vehicle: response.data });
+			set({ searchedVehicle: response.data });
 		}
 
 		set({ loading: false });
+	},
+	clear: () => {
+		set({ searchedVehicle: null, loading: false });
 	},
 }));
