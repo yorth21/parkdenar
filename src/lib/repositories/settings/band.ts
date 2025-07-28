@@ -2,20 +2,25 @@ import { and, eq, gte, lte } from "drizzle-orm";
 import { db } from "@/db";
 import { bands } from "@/db/schema";
 
-export const findBandById = async (id: number) => {
+export async function findBandById(id: number) {
 	try {
 		const [band] = await db
 			.select()
 			.from(bands)
 			.where(eq(bands.id, id))
 			.limit(1);
-		return { ok: true, data: band || null };
+
+		if (!band) {
+			return { ok: false, error: "Banda no encontrada" };
+		}
+
+		return { ok: true, data: band };
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}
-};
+}
 
-export const findAllActiveBands = async () => {
+export async function findAllActiveBands() {
 	try {
 		const listBands = await db
 			.select()
@@ -25,9 +30,9 @@ export const findAllActiveBands = async () => {
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}
-};
+}
 
-export const findActiveBandByHour = async (hour: number) => {
+export async function findActiveBandByHour(hour: number) {
 	try {
 		const [band] = await db
 			.select()
@@ -40,8 +45,13 @@ export const findActiveBandByHour = async (hour: number) => {
 				),
 			)
 			.limit(1);
-		return { ok: true, data: band || null };
+
+		if (!band) {
+			return { ok: false, error: "Banda no encontrada" };
+		}
+
+		return { ok: true, data: band };
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}
-};
+}

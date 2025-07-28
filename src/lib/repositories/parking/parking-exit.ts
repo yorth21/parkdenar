@@ -1,8 +1,18 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { parkingExit } from "@/db/schema";
+import type { ParkingExit } from "@/lib/types/parking-schema";
 
-export const findParkingExitById = async (id: number) => {
+export async function createParkingExit(exit: Omit<ParkingExit, "id">) {
+	try {
+		const [newExit] = await db.insert(parkingExit).values(exit).returning();
+		return { ok: true, data: newExit };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
+}
+
+export async function findParkingExitById(id: number) {
 	try {
 		const [exit] = await db
 			.select()
@@ -13,10 +23,10 @@ export const findParkingExitById = async (id: number) => {
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}
-};
+}
 
 // Obtener salida por ID de entrada
-export const findParkingExitByEntryId = async (entryId: number) => {
+export async function findParkingExitByEntryId(entryId: number) {
 	try {
 		const [exit] = await db
 			.select()
@@ -27,4 +37,4 @@ export const findParkingExitByEntryId = async (entryId: number) => {
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}
-};
+}

@@ -1,7 +1,10 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { parkingEntries } from "@/db/schema";
-import type { ParkingEntry } from "@/lib/types/parking-schema";
+import type {
+	ParkingEntry,
+	ParkingEntryStatus,
+} from "@/lib/types/parking-schema";
 
 export async function createParkingEntry(entry: Omit<ParkingEntry, "id">) {
 	try {
@@ -64,4 +67,22 @@ export async function findActiveParkingEntryByPlate(plate: string) {
 export async function hasActiveParkingEntry(plate: string) {
 	const entry = await findActiveParkingEntryByPlate(plate);
 	return entry.ok;
+}
+
+// Actualizar el estado de una entrada
+export async function updateParkingEntryStatus(
+	id: number,
+	status: ParkingEntryStatus,
+) {
+	try {
+		const [entry] = await db
+			.update(parkingEntries)
+			.set({ status })
+			.where(eq(parkingEntries.id, id))
+			.returning();
+
+		return { ok: true, data: entry };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
 }

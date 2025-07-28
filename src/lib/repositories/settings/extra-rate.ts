@@ -2,11 +2,11 @@ import { and, desc, eq, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { extraRates } from "@/db/schema";
 
-export const findCurrentExtraRate = async (
+export async function findCurrentExtraRate(
 	bandId: number,
 	vehicleTypeId: number,
 	date: Date = new Date(),
-) => {
+) {
 	try {
 		const timestamp = date.getTime();
 
@@ -30,4 +30,4 @@ export const findCurrentExtraRate = async (
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}
-};
+}
