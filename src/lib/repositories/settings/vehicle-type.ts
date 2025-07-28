@@ -9,7 +9,15 @@ export async function findVehicleTypeById(id: number) {
 			.from(vehicleTypes)
 			.where(eq(vehicleTypes.id, id))
 			.limit(1);
-		return { ok: true, data: vehicleType || null };
+
+		if (!vehicleType) {
+			return {
+				ok: false,
+				error: `No se encontró el tipo de vehículo para el ID ${id}`,
+			};
+		}
+
+		return { ok: true, data: vehicleType };
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}

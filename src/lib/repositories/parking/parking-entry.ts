@@ -1,6 +1,16 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { parkingEntries } from "@/db/schema";
+import type { ParkingEntry } from "@/lib/types/parking-schema";
+
+export async function createParkingEntry(entry: Omit<ParkingEntry, "id">) {
+	try {
+		const newEntry = await db.insert(parkingEntries).values(entry).returning();
+		return { ok: true, data: newEntry[0] };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
+}
 
 export async function findParkingEntryById(id: number) {
 	try {
@@ -48,4 +58,10 @@ export async function findActiveParkingEntryByPlate(plate: string) {
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}
+}
+
+// Verificar si existe una entrada activa para la placa
+export async function hasActiveParkingEntry(plate: string) {
+	const entry = await findActiveParkingEntryByPlate(plate);
+	return entry.ok;
 }

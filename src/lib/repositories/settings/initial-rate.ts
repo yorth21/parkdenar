@@ -9,7 +9,15 @@ export async function findInitialRateById(id: number) {
 			.from(initialRates)
 			.where(eq(initialRates.id, id))
 			.limit(1);
-		return { ok: true, data: initialRate || null };
+
+		if (!initialRate) {
+			return {
+				ok: false,
+				error: `No se encontró una tarifa inicial para el tipo de vehículo ${id}`,
+			};
+		}
+
+		return { ok: true, data: initialRate };
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}
@@ -37,7 +45,15 @@ export async function findCurrentInitialRateByVehicleType(
 			)
 			.orderBy(desc(initialRates.validFrom))
 			.limit(1);
-		return { ok: true, data: initialRate || null };
+
+		if (!initialRate) {
+			return {
+				ok: false,
+				error: "No se encontró una tarifa inicial para este tipo de vehículo",
+			};
+		}
+
+		return { ok: true, data: initialRate };
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}
