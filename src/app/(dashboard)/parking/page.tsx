@@ -1,9 +1,25 @@
 "use client";
 
+import { useEffect } from "react";
+import { EmptyStateCard } from "@/components/parking/empty-state-card";
+import { RegisterEntryCard } from "@/components/parking/register-entry-card";
+import { RegisterExitCard } from "@/components/parking/register-exit-card";
 import { SearchVehicleCard } from "@/components/parking/search-vehicle-card";
+import { useSearchVehicleStore } from "@/store/search-vehicle-store";
+import { useVehicleTypesStore } from "@/store/vehicle-types-store";
 
 export default function ParkingPage() {
-	//const { vehicleSearchResult } = useVehicleSearchStore();
+	const searchedVehicle = useSearchVehicleStore(
+		(state) => state.searchedVehicle,
+	);
+
+	const fetchVehicleTypes = useVehicleTypesStore(
+		(state) => state.fetchVehicleTypes,
+	);
+
+	useEffect(() => {
+		fetchVehicleTypes();
+	}, [fetchVehicleTypes]);
 
 	return (
 		<>
@@ -23,16 +39,16 @@ export default function ParkingPage() {
 					<SearchVehicleCard />
 				</div>
 
-				{/* Columna Derecha - Registro de Entrada/Salida 
+				{/* Columna Derecha - Registro de Entrada/Salida */}
 				<div>
-					{vehicleSearchResult === null ? (
+					{searchedVehicle === null ? (
 						<EmptyStateCard />
-					) : vehicleSearchResult.found === false ? (
+					) : searchedVehicle.found === false ? (
 						<RegisterEntryCard />
 					) : (
 						<RegisterExitCard />
 					)}
-				</div>*/}
+				</div>
 			</div>
 		</>
 	);
