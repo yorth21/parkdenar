@@ -1,6 +1,16 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { payments } from "@/db/schema";
+import type { Payment } from "@/lib/types/parking-schema";
+
+export const createPayment = async (payment: Omit<Payment, "id">) => {
+	try {
+		const [newPayment] = await db.insert(payments).values(payment).returning();
+		return { ok: true, data: newPayment };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
+};
 
 // Obtener pago por ID
 export const findPaymentById = async (id: number) => {
