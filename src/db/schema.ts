@@ -227,7 +227,7 @@ export const parkingExit = sqliteTable(
 		uniqueIndex("parking_exit_time_idx").on(parkingExit.exitTime),
 		check(
 			"parking_exit_status_ck",
-			sql`${parkingExit.status} IN ('Paid', 'Voided')`,
+			sql`${parkingExit.status} IN ('Paid', 'Voided', 'NotPaid')`,
 		),
 	],
 );
