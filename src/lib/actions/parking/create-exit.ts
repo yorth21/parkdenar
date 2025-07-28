@@ -96,15 +96,15 @@ async function calculateParkingAmount(
 		throw new Error("No se encontró tarifa inicial para el tipo de vehículo");
 	}
 
-	const charges: ParkingChargeDetail[] = [];
+	const charges: ParkingChargeDetail[] = [
+		{
+			chargeName: "Tarifa inicial",
+			amount: initialRate.data.amount,
+		},
+	];
 
 	// Si es menos de 1 hora, cobrar como 1 hora
 	if (totalHours <= 1) {
-		charges.push({
-			chargeName: "Tarifa inicial",
-			amount: initialRate.data.amount,
-		});
-
 		return {
 			totalAmount: initialRate.data.amount,
 			charges,
