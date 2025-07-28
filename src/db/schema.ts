@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
 	integer as bool,
 	check,
+	index,
 	integer,
 	primaryKey,
 	sqliteTable,
@@ -114,7 +115,7 @@ export const bands = sqliteTable(
 		isActive: bool("is_active").notNull().default(1),
 	},
 	(band) => [
-		uniqueIndex("band_name_uq").on(band.name),
+		index("band_name_idx").on(band.name),
 		check(
 			"band_hour_range_ck",
 			sql`${band.startHour} >= 0 AND ${band.endHour} <= 23 AND ${band.startHour} < ${band.endHour}`,
@@ -193,7 +194,7 @@ export const parkingEntries = sqliteTable(
 			.default("Open"),
 	},
 	(parkingEntry) => [
-		uniqueIndex("parking_entry_plate_idx").on(parkingEntry.plate),
+		index("parking_entry_plate_idx").on(parkingEntry.plate),
 		// Índice único condicional para placas abiertas
 		uniqueIndex("parking_entry_plate_open_uq")
 			.on(parkingEntry.plate)
@@ -224,7 +225,7 @@ export const parkingExit = sqliteTable(
 	},
 	(parkingExit) => [
 		uniqueIndex("parking_exit_entry_uq").on(parkingExit.entryId),
-		uniqueIndex("parking_exit_time_idx").on(parkingExit.exitTime),
+		index("parking_exit_time_idx").on(parkingExit.exitTime),
 		check(
 			"parking_exit_status_ck",
 			sql`${parkingExit.status} IN ('Paid', 'Voided', 'NotPaid')`,
