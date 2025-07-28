@@ -1,15 +1,27 @@
+import type { ParkingEntry } from "@/lib/types/parking-schema";
+
 export interface SearchVehicleRequest {
 	plate: string;
 }
 
 export interface SearchVehicleResponse {
 	found: boolean;
+	plate?: string;
 	vehicle: {
-		plate: string;
 		vehicleType: string;
 		entryTime: Date;
 		timeParked: string;
 	} | null;
+}
+
+export interface CreateEntryRequest {
+	plate: string;
+	vehicleTypeId: number;
+	userId: string;
+}
+
+export interface CreateEntryResponse {
+	entry: ParkingEntry;
 }
 
 // TODO: Example types for parking
