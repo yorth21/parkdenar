@@ -123,7 +123,7 @@ export function RegisterEntryCard() {
 							setSelectedVehicleType(vehicleType ?? null);
 						}}
 					>
-						<SelectTrigger id="vehicle-type" className="w-full h-12">
+						<SelectTrigger id="vehicle-type" className="w-full">
 							<SelectValue placeholder="Selecciona un tipo" />
 						</SelectTrigger>
 						<SelectContent>
