@@ -78,14 +78,14 @@ export async function updateParkingEntryStatus(
 	status: ParkingEntryStatus,
 ) {
 	try {
-		const [entry] = await db
+		await db
 			.update(parkingEntries)
 			.set({ status })
 			.where(eq(parkingEntries.id, id))
 			.returning();
-
-		return { ok: true, data: entry };
 	} catch (err: unknown) {
-		return { ok: false, error: err };
+		throw new Error(
+			`Error al actualizar el estado de la entrada ${id} a ${status}: ${err}`,
+		);
 	}
 }
