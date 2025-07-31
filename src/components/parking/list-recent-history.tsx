@@ -69,7 +69,7 @@ export function ListRecentHistory() {
 							>
 								<div className="flex items-center gap-3 min-w-0 flex-1">
 									{/* Placa */}
-									<span className="font-mono font-semibold text-sm">
+									<span className="font-mono tracking-widest font-semibold text-sm">
 										{item.plate}
 									</span>
 
@@ -90,7 +90,7 @@ export function ListRecentHistory() {
 									<div className="text-xs text-muted-foreground">
 										{item.vehicleType}
 									</div>
-									<div className="text-sm font-mono">
+									<div className="font-mono text-sm">
 										{item.operationTime.toLocaleTimeString("es-CO", {
 											hour: "2-digit",
 											minute: "2-digit",
