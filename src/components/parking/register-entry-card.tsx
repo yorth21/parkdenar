@@ -4,6 +4,7 @@ import { Clock, Loader2, LogIn } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Plate } from "@/components/parking/plate";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -86,13 +87,7 @@ export function RegisterEntryCard() {
 			</CardHeader>
 			<CardContent className="space-y-6">
 				{/* Placa visual */}
-				<div className="flex justify-center">
-					<div className="bg-yellow-400 border-4 border-black rounded-md px-6 py-2 inline-block shadow text-center">
-						<span className="font-mono text-2xl font-bold tracking-widest text-black drop-shadow">
-							{searchedVehicle?.plate}
-						</span>
-					</div>
-				</div>
+				<Plate plate={searchedVehicle?.plate} />
 
 				{/* Mensaje contextual */}
 				<div className="text-center space-y-2">

@@ -4,6 +4,8 @@ import { Car, Clock, Loader2, LogIn, LogOut } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PaymentExitDialog } from "@/components/parking/payment-exit-dialog";
+import { Plate } from "@/components/parking/plate";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -19,7 +21,6 @@ import type { CreateExitResponse } from "@/lib/types/parking";
 import type { PaymentMethod } from "@/lib/types/parking-schema";
 import type { CreatePaymentRequest } from "@/lib/types/payments";
 import { useSearchVehicleStore } from "@/store/search-vehicle-store";
-import { PaymentExitDialog } from "./payment-exit-dialog";
 
 export function RegisterExitCard() {
 	const searchedVehicle = useSearchVehicleStore(
@@ -119,13 +120,7 @@ export function RegisterExitCard() {
 				</CardHeader>
 				<CardContent className="space-y-4">
 					{/* Placa visual para vehículo encontrado */}
-					<div className="flex justify-center">
-						<div className="bg-yellow-400 border-4 border-black rounded-md px-6 py-2 inline-block shadow text-center">
-							<span className="font-mono text-2xl font-bold tracking-widest text-black drop-shadow">
-								{searchedVehicle?.plate}
-							</span>
-						</div>
-					</div>
+					<Plate plate={searchedVehicle?.plate} />
 
 					<div className="text-center space-y-2">
 						<p className="text-sm text-muted-foreground">
