@@ -59,3 +59,11 @@ export interface Payment {
 	notes: string | null;
 	createdAt: Date;
 }
+
+export interface RecentHistory {
+	entryId: number;
+	plate: string;
+	vehicleType: string;
+	status: ParkingEntryStatus | ParkingExitStatus;
+	operationTime: Date;
+}

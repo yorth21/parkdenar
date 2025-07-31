@@ -9,7 +9,6 @@ import type {
 	CreateEntryRequest,
 	CreateEntryResponse,
 } from "@/lib/types/parking";
-
 import type { ResponseAction } from "@/lib/types/response-actions";
 import { errorToString } from "@/lib/utils";
 

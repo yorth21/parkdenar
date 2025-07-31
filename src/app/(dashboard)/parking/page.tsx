@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { EmptyStateCard } from "@/components/parking/empty-state-card";
+import { ListRecentHistory } from "@/components/parking/list-recent-history";
 import { RegisterEntryCard } from "@/components/parking/register-entry-card";
 import { RegisterExitCard } from "@/components/parking/register-exit-card";
 import { SearchVehicleCard } from "@/components/parking/search-vehicle-card";
@@ -36,14 +37,11 @@ export default function ParkingPage() {
 				</p>
 			</div>
 
-			<div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+			<div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
 				{/* Columna Izquierda - Búsqueda */}
-				<div>
+				<div className="flex flex-col gap-4">
 					<SearchVehicleCard />
-				</div>
 
-				{/* Columna Derecha - Registro de Entrada/Salida */}
-				<div>
 					{searchedVehicle === null ? (
 						<EmptyStateCard />
 					) : searchedVehicle.found === false ? (
@@ -51,6 +49,11 @@ export default function ParkingPage() {
 					) : (
 						<RegisterExitCard />
 					)}
+				</div>
+
+				{/* Columna Derecha - Historial de Entradas */}
+				<div>
+					<ListRecentHistory />
 				</div>
 			</div>
 		</>
