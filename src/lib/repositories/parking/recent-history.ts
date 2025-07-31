@@ -50,7 +50,7 @@ export async function getRecentHistory(): Promise<
 					sql`coalesce(${parkingExit.exitTime}, ${parkingEntries.entryTime})`,
 				),
 			)
-			.limit(10);
+			.limit(8);
 		return { ok: true, data: recentHistory as RecentHistory[] };
 	} catch (error: unknown) {
 		return { ok: false, error };
