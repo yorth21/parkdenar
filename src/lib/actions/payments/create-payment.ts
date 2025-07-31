@@ -1,5 +1,10 @@
 "use server";
 
+import { updateParkingEntryStatus } from "@/lib/repositories/parking/parking-entry";
+import {
+	findParkingExitById,
+	updateParkingExitStatus,
+} from "@/lib/repositories/parking/parking-exit";
 import { createPayment } from "@/lib/repositories/payments/payment";
 import type {
 	CreatePaymentRequest,
@@ -27,6 +32,17 @@ export const createPaymentAction = async (
 				error: errorToString(newPayment.error, "Error al crear el pago"),
 			};
 		}
+
+		const exit = await findParkingExitById(payment.exitId);
+		if (!exit.ok || !exit.data) {
+			return {
+				ok: false,
+				error: errorToString(exit.error, "Error al buscar la salida"),
+			};
+		}
+
+		await updateParkingEntryStatus(exit.data.entryId, "Closed");
+		await updateParkingExitStatus(exit.data.id, "Paid");
 
 		return { ok: true, data: { payment: newPayment.data } };
 	} catch (error) {
