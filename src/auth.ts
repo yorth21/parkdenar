@@ -1,11 +1,27 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
-import NextAuth from "next-auth";
+import NextAuth, { type DefaultSession } from "next-auth";
+
 import Credentials from "next-auth/providers/credentials";
 
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { findUserByEmail } from "./lib/repositories/users/user-repo";
+
+declare module "next-auth" {
+	interface Session {
+		user: {
+			id: string;
+			role: "admin" | "user";
+		} & DefaultSession["user"];
+	}
+
+	interface User {
+		id: string;
+		role: "admin" | "user";
+		email: string;
+		name: string;
+	}
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	adapter: DrizzleAdapter(db),
@@ -22,19 +38,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					return null;
 				}
 
-				const user = await db
-					.select()
-					.from(users)
-					.where(eq(users.email, credentials.email as string))
-					.limit(1);
-
-				if (!user[0]) {
+				const userFound = await findUserByEmail(credentials.email as string);
+				if (!userFound.ok || !userFound.data) {
 					return null;
 				}
 
 				const isValidPassword = await bcrypt.compare(
 					credentials.password as string,
-					user[0].password || "",
+					userFound.data.password || "",
 				);
 
 				if (!isValidPassword) {
@@ -42,10 +53,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 				}
 
 				return {
-					id: user[0].id,
-					email: user[0].email,
-					name: user[0].name,
-					image: user[0].image,
+					id: userFound.data.id,
+					email: userFound.data.email,
+					name: userFound.data.name,
+					image: userFound.data.image,
+					role: (userFound.data.role as "admin" | "user") ?? "user",
 				};
 			},
 		}),
@@ -57,12 +69,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 		async jwt({ token, user }) {
 			if (user) {
 				token.sub = user.id;
+				token.role = user.role;
 			}
 			return token;
 		},
 		async session({ session, token }) {
 			if (session?.user && token?.sub) {
 				session.user.id = token.sub;
+				session.user.role = token.role as "admin" | "user";
 			}
 			return session;
 		},
