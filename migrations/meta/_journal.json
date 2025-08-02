@@ -36,6 +36,20 @@
       "when": 1754108018564,
       "tag": "0004_wealthy_dragon_man",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1754109373655,
+      "tag": "0005_fearless_solo",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1754110117381,
+      "tag": "0006_omniscient_zeigeist",
+      "breakpoints": true
     }
   ]
 }

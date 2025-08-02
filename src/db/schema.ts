@@ -286,6 +286,9 @@ export const payments = sqliteTable(
 		}),
 		amount: integer("amount").notNull(),
 		method: text("method").$type<"Cash" | "Card" | "Transfer">().notNull(),
+		paymentMethodId: integer("payment_method_id")
+			.notNull()
+			.references(() => paymentMethods.id, { onDelete: "restrict" }),
 		userId: text("user_id")
 			.notNull()
 			.references(() => users.id, { onDelete: "restrict" }),
