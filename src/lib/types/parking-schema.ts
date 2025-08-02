@@ -49,12 +49,18 @@ export interface ParkingExit {
 	status: ParkingExitStatus;
 }
 
-export type PaymentMethod = "Cash" | "Card" | "Transfer";
+export interface PaymentMethod {
+	id: number;
+	code: string;
+	name: string;
+	isActive: boolean;
+}
+
 export interface Payment {
 	id: number;
 	exitId: number | null;
 	amount: number;
-	method: PaymentMethod;
+	paymentMethodId: number;
 	userId: string;
 	notes: string | null;
 	createdAt: Date;

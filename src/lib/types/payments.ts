@@ -1,9 +1,9 @@
-import type { Payment, PaymentMethod } from "@/lib/types/parking-schema";
+import type { Payment } from "@/lib/types/parking-schema";
 
 export interface CreatePaymentRequest {
 	exitId: number;
 	amount: number;
-	method: PaymentMethod;
+	paymentMethodId: number;
 	userId: string;
 	notes: string | null;
 }

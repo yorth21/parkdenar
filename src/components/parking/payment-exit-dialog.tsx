@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
@@ -32,13 +32,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { PAYMENT_METHODS } from "@/lib/constants/payment-methods";
+import { getPaymentMethodsAction } from "@/lib/actions/settings/get-payment-methods";
 import type { ParkingChargeDetail } from "@/lib/types/parking";
+import type { PaymentMethod } from "@/lib/types/parking-schema";
 
 interface PaymentExitDialogProps {
 	modalOpen: boolean;
 	onConfirmPayment: (data: {
-		paymentMethod: string;
+		paymentMethodId: number;
 		amountCents: number;
 		notes?: string;
 	}) => void;
@@ -49,12 +50,7 @@ interface PaymentExitDialogProps {
 }
 
 const paymentExitSchema = z.object({
-	paymentMethod: z.enum(
-		PAYMENT_METHODS.map((pm) => pm.value) as [string, ...string[]],
-		{
-			error: "Debes seleccionar un método de pago",
-		},
-	),
+	paymentMethodId: z.string({ error: "Debes seleccionar un método de pago" }),
 	amount: z.coerce
 		.number({ error: "El valor a cobrar es obligatorio" })
 		.min(0, { error: "El valor no puede ser negativo" }),
@@ -71,28 +67,40 @@ export function PaymentExitDialog({
 	defaultAmountCents = 0,
 	charges = [],
 }: PaymentExitDialogProps) {
+	const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+
 	const form = useForm({
 		resolver: zodResolver(paymentExitSchema),
 		defaultValues: {
-			paymentMethod: PAYMENT_METHODS[0].value,
 			amount: defaultAmountCents / 100,
 			notes: "",
 		},
 	});
 
 	useEffect(() => {
+		const getPaymentMethods = async () => {
+			const paymentMethods = await getPaymentMethodsAction();
+			if (paymentMethods.ok) {
+				setPaymentMethods(paymentMethods.data);
+			}
+		};
+
+		getPaymentMethods();
+	}, []);
+
+	useEffect(() => {
 		if (modalOpen) {
 			form.reset({
-				paymentMethod: PAYMENT_METHODS[0].value,
+				paymentMethodId: Number(paymentMethods[0].id).toString(),
 				amount: defaultAmountCents / 100,
 				notes: "",
 			});
 		}
-	}, [modalOpen, defaultAmountCents, form]);
+	}, [modalOpen, defaultAmountCents, form, paymentMethods]);
 
 	const onSubmit = (data: PaymentExitValues) => {
 		onConfirmPayment({
-			paymentMethod: data.paymentMethod,
+			paymentMethodId: Number(data.paymentMethodId),
 			amountCents: data.amount * 100,
 			notes: data.notes,
 		});
@@ -157,13 +165,13 @@ export function PaymentExitDialog({
 								<div className="w-full sm:w-1/2">
 									<FormField
 										control={form.control}
-										name="paymentMethod"
+										name="paymentMethodId"
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>Método de pago</FormLabel>
 												<Select
 													onValueChange={field.onChange}
-													value={field.value}
+													value={field.value.toString()}
 												>
 													<FormControl>
 														<SelectTrigger className="w-full">
@@ -171,8 +179,8 @@ export function PaymentExitDialog({
 														</SelectTrigger>
 													</FormControl>
 													<SelectContent>
-														{PAYMENT_METHODS.map((pm) => (
-															<SelectItem key={pm.value} value={pm.value}>
+														{paymentMethods.map((pm) => (
+															<SelectItem key={pm.id} value={pm.id.toString()}>
 																{pm.name}
 															</SelectItem>
 														))}

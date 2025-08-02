@@ -64,7 +64,7 @@ export function RegisterExitCard() {
 	};
 
 	const onConfirmPayment = async (data: {
-		paymentMethod: string;
+		paymentMethodId: number;
 		amountCents: number;
 		notes?: string;
 	}) => {
@@ -84,7 +84,7 @@ export function RegisterExitCard() {
 		const payment: CreatePaymentRequest = {
 			exitId: exitInfo?.exit?.id,
 			amount: data.amountCents,
-			method: data.paymentMethod as PaymentMethod,
+			paymentMethodId: data.paymentMethodId,
 			userId: session.user.id,
 			notes: data.notes || null,
 		};

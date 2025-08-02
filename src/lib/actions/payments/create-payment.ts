@@ -20,7 +20,7 @@ export const createPaymentAction = async (
 		const newPayment = await createPayment({
 			exitId: payment.exitId,
 			amount: payment.amount,
-			method: payment.method,
+			paymentMethodId: payment.paymentMethodId,
 			userId: payment.userId,
 			notes: payment.notes,
 			createdAt: new Date(),
