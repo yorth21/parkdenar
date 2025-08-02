@@ -127,12 +127,12 @@ export function CashClosureCard() {
 								<span className="font-medium">Diferencia</span>
 								<Badge
 									variant={
-										preview.amount - countedCash * 100 === 0
+										countedCash - preview.amount * 100 === 0
 											? "default"
 											: "destructive"
 									}
 								>
-									{formatCurrency(preview.amount - countedCash * 100)}
+									{formatCurrency(countedCash - preview.amount * 100)}
 								</Badge>
 							</div>
 						)}
