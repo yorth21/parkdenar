@@ -85,7 +85,7 @@ export default function LoginPage() {
 					</div>
 					<CardTitle className="text-2xl font-bold">Iniciar Sesión</CardTitle>
 					<CardDescription>
-						Accede al sistema de gestión de ParkingDenar
+						Accede al sistema de gestión de Parky
 					</CardDescription>
 				</CardHeader>
 				<CardContent>

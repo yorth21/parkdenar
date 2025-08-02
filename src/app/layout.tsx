@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "ParkingDenar",
+	title: "Parky",
 	description: "Sistema de gestión para parqueaderos",
 };
 
