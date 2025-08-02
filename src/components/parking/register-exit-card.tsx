@@ -18,7 +18,6 @@ import {
 import { createExitAction } from "@/lib/actions/parking/create-exit";
 import { createPaymentAction } from "@/lib/actions/payments/create-payment";
 import type { CreateExitResponse } from "@/lib/types/parking";
-import type { PaymentMethod } from "@/lib/types/parking-schema";
 import type { CreatePaymentRequest } from "@/lib/types/payments";
 import { useSearchVehicleStore } from "@/store/search-vehicle-store";
 
