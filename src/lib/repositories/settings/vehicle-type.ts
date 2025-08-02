@@ -23,6 +23,15 @@ export async function findVehicleTypeById(id: number) {
 	}
 }
 
+export async function findAllVehicleTypes() {
+	try {
+		const listVehicleTypes = await db.select().from(vehicleTypes);
+		return { ok: true, data: listVehicleTypes };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
+}
+
 export async function findAllActiveVehicleTypes() {
 	try {
 		const listVehicleTypes = await db
