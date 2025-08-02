@@ -17,3 +17,12 @@ export function errorToString(
 		return fallback;
 	}
 }
+
+export function formatCurrency(amount: number | string): string {
+	const amountNumber = typeof amount === "string" ? Number(amount) : amount;
+
+	return new Intl.NumberFormat("es-CO", {
+		style: "currency",
+		currency: "COP",
+	}).format(amountNumber / 100);
+}
