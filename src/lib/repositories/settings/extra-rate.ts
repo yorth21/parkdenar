@@ -31,3 +31,12 @@ export async function findCurrentExtraRate(
 		return { ok: false, error: err };
 	}
 }
+
+export async function findAllExtraRates() {
+	try {
+		const listExtraRates = await db.select().from(extraRates);
+		return { ok: true, data: listExtraRates };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
+}
