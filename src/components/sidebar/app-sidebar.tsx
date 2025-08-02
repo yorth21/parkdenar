@@ -1,6 +1,6 @@
 "use client";
 
-import { Car, Home, ParkingMeter } from "lucide-react";
+import { Car, Home, ParkingMeter, Settings, Users } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import type * as React from "react";
@@ -26,6 +26,18 @@ const data = {
 			icon: ParkingMeter,
 		},
 	],
+	navAdmin: [
+		{
+			title: "Usuarios",
+			url: "/users",
+			icon: Users,
+		},
+		{
+			title: "Configuración",
+			url: "/settings",
+			icon: Settings,
+		},
+	],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -35,6 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		name: session?.user?.name || "",
 		email: session?.user?.email || "",
 		avatar: session?.user?.image || "",
+		role: session?.user?.role || "user",
 	};
 
 	return (
@@ -46,14 +59,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							<Car className="w-6 h-6 text-white" />
 						</div>
 						<div>
-							<h1 className="text-2xl font-bold text-gray-900">ParkDenar</h1>
+							<h1 className="text-2xl font-bold text-gray-900">ParkingDenar</h1>
 							<p className="text-sm text-gray-500">Sistema de Gestión</p>
 						</div>
 					</div>
 				</Link>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain title="Menu" items={data.navMain} />
+				<NavMain title="Menú" items={data.navMain} />
+				{session?.user?.role === "admin" && (
+					<NavMain title="Administración" items={data.navAdmin} />
+				)}
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser user={user} />
