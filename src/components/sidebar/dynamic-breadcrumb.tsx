@@ -13,6 +13,7 @@ import {
 const routeLabels: Record<string, string> = {
 	"/home": "Inicio",
 	"/parking": "Parqueadero",
+	"/vehicles-inside": "Vehículos dentro",
 	"/cash-closure": "Cierre de caja",
 	"/cash-closure/preview": "Previsualización",
 	"/cash-closure/confirm": "Confirmar",

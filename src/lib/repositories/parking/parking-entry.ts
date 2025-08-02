@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { parkingEntries } from "@/db/schema";
+import { parkingEntries, users, vehicleTypes } from "@/db/schema";
 import type {
 	ParkingEntry,
 	ParkingEntryStatus,
@@ -34,6 +34,32 @@ export async function findParkingEntryById(id: number) {
 		}
 
 		return { ok: true, data: entry };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
+}
+
+export async function findAllActiveParkingEntries() {
+	try {
+		const listEntries = await db
+			.select({
+				id: parkingEntries.id,
+				plate: parkingEntries.plate,
+				entryTime: parkingEntries.entryTime,
+				vehicleTypeId: parkingEntries.vehicleTypeId,
+				userId: parkingEntries.userId,
+				userName: users.name,
+				vehicleTypeName: vehicleTypes.name,
+			})
+			.from(parkingEntries)
+			.innerJoin(users, eq(parkingEntries.userId, users.id))
+			.innerJoin(
+				vehicleTypes,
+				eq(parkingEntries.vehicleTypeId, vehicleTypes.id),
+			)
+			.where(eq(parkingEntries.status, "Open"));
+
+		return { ok: true, data: listEntries };
 	} catch (err: unknown) {
 		return { ok: false, error: err };
 	}

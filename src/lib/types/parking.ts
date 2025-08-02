@@ -44,3 +44,13 @@ export interface CreateExitResponse {
 	totalAmount: number;
 	charges: ParkingChargeDetail[];
 }
+
+export interface GetActiveEntryResponse {
+	id: number;
+	plate: string;
+	entryTime: Date;
+	vehicleTypeId: number;
+	vehicleTypeName: string;
+	userId: string;
+	userName: string;
+}

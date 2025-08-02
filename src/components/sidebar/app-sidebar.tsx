@@ -32,7 +32,11 @@ const data = {
 			url: "/parking",
 			icon: ParkingMeter,
 		},
-		// Path para el cierre de caja
+		{
+			title: "Vehículos dentro",
+			url: "/vehicles-inside",
+			icon: Car,
+		},
 		{
 			title: "Cierre de caja",
 			url: "/cash-closure",
