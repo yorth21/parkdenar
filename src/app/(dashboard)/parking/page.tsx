@@ -28,7 +28,7 @@ export default function ParkingPage() {
 	return (
 		<>
 			{/* Header */}
-			<div>
+			<div className="mb-4">
 				<h1 className="text-3xl font-bold tracking-tight">
 					Control de Vehículos
 				</h1>
@@ -37,7 +37,7 @@ export default function ParkingPage() {
 				</p>
 			</div>
 
-			<div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				{/* Columna Izquierda - Búsqueda */}
 				<div className="flex flex-col gap-4">
 					<SearchVehicleCard />
