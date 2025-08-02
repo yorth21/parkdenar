@@ -13,7 +13,7 @@ export default async function Home() {
 							<Car className="w-6 h-6 text-white" />
 						</div>
 						<div>
-							<h1 className="text-2xl font-bold text-gray-900">ParkDenar</h1>
+							<h1 className="text-2xl font-bold text-gray-900">ParkingDenar</h1>
 							<p className="text-sm text-gray-500">Sistema de Gestión</p>
 						</div>
 					</div>
@@ -121,7 +121,7 @@ export default async function Home() {
 				<section id="demo" className="text-center">
 					<div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 lg:p-12 text-white max-w-4xl mx-auto">
 						<h3 className="text-3xl lg:text-4xl font-bold mb-4">
-							¿Interesado en implementar ParkDenar?
+							¿Interesado en implementar ParkingDenar?
 						</h3>
 						<p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
 							Solicita una demostración personalizada y conoce cómo nuestro
@@ -133,7 +133,7 @@ export default async function Home() {
 									variant: "secondary",
 									size: "lg",
 								})}
-								href="mailto:contacto@parkdenar.com?subject=Solicitud de Demo"
+								href="mailto:yorth.dev@gmail.com?subject=Solicitud de Demo"
 							>
 								Solicitar Demo
 							</Link>
@@ -159,7 +159,7 @@ export default async function Home() {
 						<div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
 							<Car className="w-5 h-5 text-white" />
 						</div>
-						<span className="text-xl font-bold">ParkDenar</span>
+						<span className="text-xl font-bold">ParkingDenar</span>
 						<span className="text-gray-400">|</span>
 						<span className="text-gray-400">Sistema de Gestión</span>
 					</div>
@@ -167,8 +167,8 @@ export default async function Home() {
 						Solución profesional para la gestión integral de parqueaderos
 					</p>
 					<div className="text-sm text-gray-400">
-						© 2025 ParkDenar - Yorth21. Sistema especializado para operaciones
-						de parqueaderos.
+						© 2025 ParkingDenar - Yorth21. Sistema especializado para
+						operaciones de parqueaderos.
 					</div>
 				</div>
 			</footer>
