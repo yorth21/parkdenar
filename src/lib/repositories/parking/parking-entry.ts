@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { parkingEntries, users, vehicleTypes } from "@/db/schema";
 import type {
@@ -57,7 +57,8 @@ export async function findAllActiveParkingEntries() {
 				vehicleTypes,
 				eq(parkingEntries.vehicleTypeId, vehicleTypes.id),
 			)
-			.where(eq(parkingEntries.status, "Open"));
+			.where(eq(parkingEntries.status, "Open"))
+			.orderBy(desc(parkingEntries.entryTime));
 
 		return { ok: true, data: listEntries };
 	} catch (err: unknown) {
