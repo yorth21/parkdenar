@@ -1,6 +1,13 @@
 "use client";
 
-import { Car, Home, ParkingMeter, Settings, Users } from "lucide-react";
+import {
+	Car,
+	CreditCard,
+	Home,
+	ParkingMeter,
+	Settings,
+	Users,
+} from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import type * as React from "react";
@@ -24,6 +31,12 @@ const data = {
 			title: "Parqueadero",
 			url: "/parking",
 			icon: ParkingMeter,
+		},
+		// Path para el cierre de caja
+		{
+			title: "Cierre de caja",
+			url: "/cash-closure",
+			icon: CreditCard,
 		},
 	],
 	navAdmin: [
@@ -59,7 +72,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							<Car className="w-6 h-6 text-white" />
 						</div>
 						<div>
-							<h1 className="text-2xl font-bold text-gray-900">ParkingDenar</h1>
+							<h1 className="text-2xl font-bold text-gray-900">Parky</h1>
 							<p className="text-sm text-gray-500">Sistema de Gestión</p>
 						</div>
 					</div>

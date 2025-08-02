@@ -35,6 +35,7 @@ import {
 import { getPaymentMethodsAction } from "@/lib/actions/settings/get-payment-methods";
 import type { ParkingChargeDetail } from "@/lib/types/parking";
 import type { PaymentMethod } from "@/lib/types/parking-schema";
+import { formatCurrency } from "@/lib/utils";
 
 interface PaymentExitDialogProps {
 	modalOpen: boolean;
@@ -128,25 +129,15 @@ export function PaymentExitDialog({
 											className="flex justify-between"
 										>
 											<span>{c.chargeName}</span>
-											<span>
-												{Number(c.amount / 100).toLocaleString("es-CO", {
-													style: "currency",
-													currency: "COP",
-													minimumFractionDigits: 0,
-												})}
-											</span>
+											<span>{formatCurrency(c.amount)}</span>
 										</li>
 									))}
 									<li className="flex justify-between font-semibold mt-2 text-lg">
 										<span>Total a cobrar</span>
 										<span>
-											{Number(
-												charges.reduce((acc, c) => acc + c.amount, 0) / 100,
-											).toLocaleString("es-CO", {
-												style: "currency",
-												currency: "COP",
-												minimumFractionDigits: 0,
-											})}
+											{formatCurrency(
+												charges.reduce((acc, c) => acc + c.amount, 0),
+											)}
 										</span>
 									</li>
 								</ul>
