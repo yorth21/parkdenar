@@ -23,6 +23,15 @@ export async function findInitialRateById(id: number) {
 	}
 }
 
+export async function findAllInitialRates() {
+	try {
+		const listInitialRates = await db.select().from(initialRates);
+		return { ok: true, data: listInitialRates };
+	} catch (err: unknown) {
+		return { ok: false, error: err };
+	}
+}
+
 export async function findCurrentInitialRateByVehicleType(
 	vehicleTypeId: number,
 	date: Date = new Date(),
