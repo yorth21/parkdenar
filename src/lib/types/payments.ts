@@ -11,3 +11,20 @@ export interface CreatePaymentRequest {
 export interface CreatePaymentResponse {
 	payment: Payment;
 }
+
+export interface GenerateClosurePreviewResponse {
+	startTime: Date;
+	endTime: Date;
+	amount: number;
+	totals: {
+		paymentMethodId: number;
+		paymentMethodName: string;
+		amount: number;
+	}[];
+}
+
+export interface ConfirmClosureRequest {
+	userId: string;
+	cashCounted: number;
+	notes: string | null;
+}
