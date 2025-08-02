@@ -50,6 +50,13 @@
       "when": 1754110117381,
       "tag": "0006_omniscient_zeigeist",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1754110182728,
+      "tag": "0007_open_fat_cobra",
+      "breakpoints": true
     }
   ]
 }

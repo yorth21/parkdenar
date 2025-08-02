@@ -285,7 +285,6 @@ export const payments = sqliteTable(
 			onDelete: "restrict",
 		}),
 		amount: integer("amount").notNull(),
-		method: text("method").$type<"Cash" | "Card" | "Transfer">().notNull(),
 		paymentMethodId: integer("payment_method_id")
 			.notNull()
 			.references(() => paymentMethods.id, { onDelete: "restrict" }),
@@ -304,9 +303,5 @@ export const payments = sqliteTable(
 	(payment) => [
 		uniqueIndex("payment_exit_uq").on(payment.exitId),
 		check("payment_amount_nonneg_ck", sql`${payment.amount} >= 0`),
-		check(
-			"payment_method_ck",
-			sql`${payment.method} IN ('Cash', 'Card', 'Transfer')`,
-		),
 	],
 );
