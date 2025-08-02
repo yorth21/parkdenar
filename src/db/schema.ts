@@ -233,6 +233,50 @@ export const parkingExit = sqliteTable(
 	],
 );
 
+export const paymentMethods = sqliteTable(
+	"payment_method",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		code: text("code").notNull().unique(), // 'CASH', 'CARD', 'NEQUI', etc.
+		name: text("name").notNull(), // ‘Efectivo’, ‘Tarjeta’, ‘Nequi’
+		isActive: bool("is_active").notNull().default(1),
+	},
+	(t) => [index("payment_method_code_idx").on(t.code)],
+);
+
+export const cashClosures = sqliteTable(
+	"cash_closure",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		startTime: integer("start_time", { mode: "timestamp_ms" }).notNull(),
+		endTime: integer("end_time", { mode: "timestamp_ms" }).notNull(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "restrict" }),
+		cashCounted: integer("cash_counted"), // lo que contó el operador
+		discrepancy: integer("discrepancy"), // cashCounted – totalCash
+		notes: text("notes"),
+		createdAt: integer("created_at", { mode: "timestamp_ms" })
+			.notNull()
+			.$defaultFn(() => new Date()),
+	},
+	(tbl) => [index("cash_closure_user_idx").on(tbl.userId)],
+);
+
+export const cashClosureTotals = sqliteTable(
+	"cash_closure_total",
+	{
+		closureId: integer("closure_id")
+			.notNull()
+			.references(() => cashClosures.id, { onDelete: "cascade" }),
+		paymentMethodId: integer("payment_method_id")
+			.notNull()
+			.references(() => paymentMethods.id, { onDelete: "restrict" }),
+		amount: integer("amount").notNull(),
+	},
+	(t) => [primaryKey({ columns: [t.closureId, t.paymentMethodId] })],
+);
+
 export const payments = sqliteTable(
 	"payment",
 	{
@@ -246,6 +290,10 @@ export const payments = sqliteTable(
 			.notNull()
 			.references(() => users.id, { onDelete: "restrict" }),
 		notes: text("notes"),
+		cashClosureId: integer("cash_closure_id").references(
+			() => cashClosures.id,
+			{ onDelete: "set null" },
+		),
 		createdAt: integer("created_at", { mode: "timestamp_ms" })
 			.notNull()
 			.$defaultFn(() => new Date()),
