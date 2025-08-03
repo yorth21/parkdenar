@@ -45,6 +45,11 @@ const data = {
 	],
 	navAdmin: [
 		{
+			title: "Historial cierres",
+			url: "/cash-closure/history",
+			icon: Car,
+		},
+		{
 			title: "Usuarios",
 			url: "/users",
 			icon: Users,

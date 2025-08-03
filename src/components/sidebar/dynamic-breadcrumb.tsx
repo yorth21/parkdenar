@@ -15,6 +15,7 @@ const routeLabels: Record<string, string> = {
 	"/parking": "Parqueadero",
 	"/vehicles-inside": "Vehículos dentro",
 	"/cash-closure": "Cierre de caja",
+	"/cash-closure/history": "Historial cierres",
 	"/cash-closure/preview": "Previsualización",
 	"/cash-closure/confirm": "Confirmar",
 	"/settings": "Configuración",
